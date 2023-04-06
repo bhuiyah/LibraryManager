@@ -1,0 +1,94 @@
+{
+  "books": [
+    {
+      "last_checked_out": "2023-03-15",
+      "title": "The Great Gatsby",
+      "genre": "Fiction",
+      "author": "F. Scott Fitzgerald"
+    },
+    {
+      "last_checked_out": "2023-02-20",
+      "title": "The Catcher in the Rye",
+      "genre": "Fiction",
+      "author": "J.D. Salinger"
+    },
+    {
+      "last_checked_out": "2022-12-10",
+      "title": "One Hundred Years of Solitude",
+      "genre": "Magical Realism",
+      "author": "Gabriel García Márquez"
+    },
+    {
+      "last_checked_out": "2023-01-05",
+      "title": "To Kill a Mockingbird",
+      "genre": "Classic",
+      "author": "Harper Lee"
+    },
+    {
+      "last_checked_out": "2022-11-15",
+      "title": "The Lord of the Rings",
+      "genre": "Fantasy",
+      "author": "J.R.R. Tolkien"
+    },
+    {
+      "last_checked_out": "2023-03-30",
+      "title": "The Hitchhiker's Guide to the Galaxy",
+      "genre": "Science Fiction",
+      "author": "Douglas Adams"
+    },
+    {
+      "last_checked_out": "2023-02-25",
+      "title": "1984",
+      "genre": "Dystopian",
+      "author": "George Orwell"
+    },
+    {
+      "last_checked_out": "2023-01-20",
+      "title": "Animal Farm",
+      "genre": "Political Satire",
+      "author": "George Orwell"
+    },
+    {
+      "last_checked_out": "2022-12-05",
+      "title": "Brave New World",
+      "genre": "Dystopian",
+      "author": "Aldous Huxley"
+    },
+    {
+      "last_checked_out": "2023-03-01",
+      "title": "Frankenstein",
+      "genre": "Gothic",
+      "author": "Mary Shelley"
+    },
+    {
+      "last_checked_out": "2023-02-05",
+      "title": "The Picture of Dorian Gray",
+      "genre": "Gothic",
+      "author": "Oscar Wilde"
+    },
+    {
+      "last_checked_out": "2022-12-20",
+      "title": "The Brothers Karamazov",
+      "genre": "Classic",
+      "author": "Fyodor Dostoevsky"
+    },
+    {
+      "last_checked_out": "2023-02-10",
+      "title": "Crime and Punishment",
+      "genre": "Psychological Fiction",
+      "author": "Fyodor Dostoevsky"
+    },
+    {
+      "last_checked_out": "2023-01-15",
+      "title": "The Count of Monte Cristo",
+      "genre": "Adventure",
+      "author": "Alexandre Dumas"
+    },
+    {
+      "last_checked_out": "2022-11-25",
+      "title": "The Three Musketeers",
+      "genre": "Adventure",
+      "author": "Alexandre Dumas"
+    }
+  ]
+}
