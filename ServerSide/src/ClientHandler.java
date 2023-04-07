@@ -15,6 +15,7 @@ class ClientHandler implements Runnable, Observer {
   private PrintWriter toClient;
 
   protected ClientHandler(Server server, Socket clientSocket) {
+    System.out.println("connected");
     this.server = server;
     this.clientSocket = clientSocket;
     try {

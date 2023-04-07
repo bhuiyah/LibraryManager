@@ -1,7 +1,5 @@
+import java.io.*;
 import java.util.Scanner;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,6 +11,7 @@ class Client {
     private PrintWriter toServer;
     private Scanner consoleInput = new Scanner(System.in);
 
+    Entry[] books;
     public static void main(String[] args) {
         try {
             new Client().setUpNetworking();
@@ -27,6 +26,20 @@ class Client {
         System.out.println("Connecting to... " + socket);
         fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         toServer = new PrintWriter(socket.getOutputStream());
+        while(true) {
+            try {
+                books = (Entry[]) new ObjectInputStream(socket.getInputStream()).readObject();
+                break;
+            } catch (EOFException e) {
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Books received");
+        for (Entry book : books) {
+            System.out.println(book);
+        }
 
         Thread readerThread = new Thread(new Runnable() {
             @Override
@@ -47,12 +60,12 @@ class Client {
             @Override
             public void run() {
                 while (true) {
-                    String input = consoleInput.nextLine();
-                    String[] variables = input.split(",");
-                    Message request = new Message(variables[0], variables[1], Integer.valueOf(variables[2]));
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
-                    sendToServer(gson.toJson(request));
+//                    String input = consoleInput.nextLine();
+//                    String[] variables = input.split(",");
+//                    Message request = new Message(variables[0], variables[1], Integer.valueOf(variables[2]));
+//                    GsonBuilder builder = new GsonBuilder();
+//                    Gson gson = builder.create();
+//                    sendToServer(gson.toJson(request));
                 }
             }
         });
