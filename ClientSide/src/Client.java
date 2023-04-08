@@ -1,23 +1,28 @@
 import java.io.*;
+import java.util.Objects;
 import java.util.Scanner;
 import java.net.Socket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-class Client {
+public class Client extends Application {
 
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
     private PrintWriter toServer;
     private Scanner consoleInput = new Scanner(System.in);
+    static Parent root;
+    static FXMLLoader loader;
+    public static Scene scene;
 
     Entry[] books;
     public static void main(String[] args) {
-        try {
-            new Client().setUpNetworking();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        launch(args);
     }
 
     private void setUpNetworking() throws Exception {
@@ -83,4 +88,18 @@ class Client {
         toServer.flush();
     }
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        loader = new FXMLLoader(getClass().getResource("GUI/LoginGUI.fxml"));
+        root = loader.load();
+        scene = new Scene(root);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Library");
+        primaryStage.show();
+        try {
+            new Client().setUpNetworking();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
