@@ -38,12 +38,33 @@ class ClientHandler implements Runnable, Observer {
     try {
       while ((input = fromClient.readLine()) != null) {
         System.out.println("From client: " + input);
-        server.processRequest(input);
+        if (input.startsWith("REGISTER:")) {
+          String[] tokens = input.split(":");
+          if (tokens.length == 3) {
+            String username = tokens[1];
+            String password = tokens[2];
+            // Send the username and password to the server for processing
+            server.processRegistration(username, password, this);
+          }
+        }
+        if(input.startsWith("LOGIN:")){
+          String[] tokens = input.split(":");
+          if (tokens.length == 3) {
+            String username = tokens[1];
+            String password = tokens[2];
+            // Send the username and password to the server for processing
+            server.processLogin(username, password, this);
+          }
+        }
+        else {
+          server.processRequest(input);
+        }
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
+
 
   @Override
   public void update(Observable o, Object arg) {

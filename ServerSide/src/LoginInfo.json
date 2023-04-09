@@ -1,0 +1,17 @@
+ [
+        {
+            "UserName": "user1",
+            "Password": "pass1",
+            "issuedItems": ["item1", "item2"]
+        },
+        {
+            "UserName": "user2",
+            "Password": "pass2",
+            "issuedItems": ["item3"]
+        },
+        {
+            "UserName": "user3",
+            "Password": "pass3",
+            "issuedItems": []
+        }
+    ]
