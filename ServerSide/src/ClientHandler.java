@@ -36,7 +36,7 @@ class ClientHandler implements Runnable, Observer {
   public void run() {
     String input;
     try {
-      while ((input = fromClient.readLine()) != null) {
+      while (!clientSocket.isClosed() && (input = fromClient.readLine()) != null) {
         System.out.println("From client: " + input);
         if (input.startsWith("REGISTER:")) {
           String[] tokens = input.split(":");
@@ -56,8 +56,8 @@ class ClientHandler implements Runnable, Observer {
             server.processLogin(username, password, this);
           }
         }
-        else {
-          server.processRequest(input);
+        if(input.startsWith("LOGOUT")){
+          server.processClientLogOff(this);
         }
       }
     } catch (IOException e) {
@@ -65,6 +65,9 @@ class ClientHandler implements Runnable, Observer {
     }
   }
 
+  public Socket getClientSocket() {
+    return clientSocket;
+  }
 
   @Override
   public void update(Observable o, Object arg) {

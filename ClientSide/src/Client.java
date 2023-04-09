@@ -1,6 +1,5 @@
 import java.io.*;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 import java.net.Socket;
 
 import javafx.application.Application;
@@ -22,7 +21,7 @@ public class Client extends Application {
     public static Stage stage;
     public volatile LoginController loginController;
     public volatile CatalogueController catalogueController;
-    Entry[] books;
+    Set<Entry> books;
     String username = "";
 
     public static void main(String[] args) {
@@ -41,7 +40,8 @@ public class Client extends Application {
         fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         while(true) {
             try {
-                books = (Entry[]) new ObjectInputStream(socket.getInputStream()).readObject();
+                Entry[] bookArr = (Entry[]) new ObjectInputStream(socket.getInputStream()).readObject();
+                books = new HashSet<>(Arrays.asList(bookArr));
                 break;
             } catch (EOFException e) {
                 break;
@@ -59,7 +59,7 @@ public class Client extends Application {
             public void run() {
                 String input;
                 try {
-                    while ((input = fromServer.readLine()) != null) {
+                    while (!socket.isClosed() && (input = fromServer.readLine()) != null) {
                         System.out.println("From server: " + input);
                         if(input.startsWith("REGISTERED")){
                             accessCatalogue(books);
@@ -83,9 +83,15 @@ public class Client extends Application {
 //                        else if(input.startsWith("ALREADY LOGGED IN")){
 //                            loginController.setLoginError("Already Logged In");
 //                        }
-//                        else if(input.startsWith("LOGOUT")){
-//                            loginController.setLoginError("Logged Out");
-//                        }
+                        else if(input.startsWith("LOGOUT")){
+                            try{
+                                socket.close();
+                                break;
+                            }
+                            catch (IOException e){
+                                e.printStackTrace();
+                            }
+                        }
 //                        else if(input.startsWith("BOOKS")){
 //                            String[] tokens = input.split(":");
 //                            if (tokens.length == 2) {
@@ -148,7 +154,7 @@ public class Client extends Application {
         Thread writerThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
+                while (!socket.isClosed()) {
                     if(loader.getController().getClass().equals(LoginController.class)){
                         loginController = loader.getController();
                         if(loginController.buttonPressed.equals("Register")) {
@@ -182,6 +188,13 @@ public class Client extends Application {
                     else if(loader.getController().getClass().equals(CatalogueController.class)){
                         catalogueController = loader.getController();
                     }
+                    stage.setOnCloseRequest(EventListener -> {
+                        try {
+                            sendToServer("LOGOUT");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }
             }
         });
@@ -193,7 +206,7 @@ public class Client extends Application {
         return;
     }
 
-    protected void accessCatalogue(Entry[] books) {
+    protected void accessCatalogue(Set<Entry> books) {
         Platform.runLater(() -> {
             try {
                 loader = new FXMLLoader(getClass().getResource("Catalogue.fxml"));
@@ -201,6 +214,8 @@ public class Client extends Application {
                 catalogueController = loader.getController();
                 catalogueController.setUserName(username);
                 catalogueController.setTopBar();
+                catalogueController.setEntries(books);
+                
                 scene = new Scene(root);
                 stage.setScene(scene);
                 stage.setTitle("Library");
@@ -235,7 +250,6 @@ public class Client extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Login");

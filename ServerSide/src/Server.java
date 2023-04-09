@@ -10,6 +10,7 @@ class Server extends Observable {
     Entry[] books;
     Set<LoginInfo> loginInfo;
     int clientCounter = 0;
+    Set<Socket> sockets;
     public static void main(String[] args) {
         new Server().runServer();
     }
@@ -20,6 +21,7 @@ class Server extends Observable {
             books = gson.fromJson(new FileReader("src/Entries.json"), Entry[].class);
             LoginInfo[] loginArray = gson.fromJson(new FileReader("src/LoginInfo.json"), LoginInfo[].class);
             loginInfo = new HashSet<>(Arrays.asList(loginArray));
+            sockets = new HashSet<>();
             setUpNetworking();
 
         } catch (Exception e) {
@@ -35,6 +37,7 @@ class Server extends Observable {
             Socket clientSocket = serverSock.accept();
             System.out.println("Connecting to... " + clientSocket);
             clientCounter++;
+            sockets.add(clientSocket);
             ClientHandler handler = new ClientHandler(this, clientSocket);
             this.addObserver(handler);
             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -43,41 +46,6 @@ class Server extends Observable {
             Thread t = new Thread(handler);
             t.start();
         }
-    }
-
-    protected void processRequest(String input) {
-//        if (input.contains("REGISTER:")) {
-//            try {
-//                String parsedWord = input.replace("REGISTER:", "");
-//                String[] parsedWords = parsedWord.split(",");
-//                String username = parsedWords[0];
-//                String password = parsedWords[1];
-//                LoginInfo info = new LoginInfo(username, password, new ArrayList<String>());
-//                //check if info is in database
-//                for (LoginInfo login : loginInfo) {
-//                    if (login.getUserName().equals(username)) {
-//                        this.setChanged();
-//                        this.notifyObservers("USER: " + username + " ALREADY EXISTS");
-//                        return;
-//                    }
-//                }
-//                Gson gson = new Gson();
-//                String json = gson.toJson(loginInfo);
-//                //add to database
-//                try {
-//                    FileWriter file = new FileWriter("src/LoginInfo.json", true);
-//                    file.write(json);
-//                    file.write("\r \n");
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                this.setChanged();
-//                this.notifyObservers("NEW USER: " + username + " REGISTERED");
-//            }
-//            catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
     public void processRegistration(String username, String password, ClientHandler clientHandler) {
@@ -106,5 +74,12 @@ class Server extends Observable {
             }
         }
         clientHandler.sendToClient("INVALID LOGIN: " + username);
+    }
+
+    public void processClientLogOff(ClientHandler clientHandler) throws IOException {
+        clientCounter--;
+        sockets.remove(clientHandler.getClientSocket());
+        clientHandler.sendToClient("LOGOUT");
+        clientHandler.getClientSocket().close();
     }
 }
