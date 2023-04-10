@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 import java.net.Socket;
 
+import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +24,7 @@ public class Client extends Application {
     public volatile CatalogueController catalogueController;
     Set<Entry> books;
     String username = "";
+    LoginInfo loginInfo;
 
     public static void main(String[] args) {
         launch(args);
@@ -71,6 +73,15 @@ public class Client extends Application {
                             Platform.runLater(() -> {
                                 loginController.setRegisterError("Invalid username or password");
                             });
+                        }
+                        else if(input.startsWith("LOGIN INFORMATION")){
+                            //input will have a "LOGIN INFORMATION" followed by a space and then the login info in the form of a json string
+                            String[] tokens = input.split(" ");
+                            if (tokens.length == 2) {
+                                String loginInfoString = tokens[1];
+                                Gson gson = new Gson();
+                                loginInfo = gson.fromJson(loginInfoString, LoginInfo.class);
+                            }
                         }
 //                        else if(input.startsWith("INVALID REGISTER")){
 //                            loginController.setRegisterError("Invalid Register");
@@ -215,7 +226,8 @@ public class Client extends Application {
                 catalogueController.setUserName(username);
                 catalogueController.setTopBar();
                 catalogueController.setEntries(books);
-                
+                //set the history
+
                 scene = new Scene(root);
                 stage.setScene(scene);
                 stage.setTitle("Library");

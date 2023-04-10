@@ -69,6 +69,11 @@ class Server extends Observable {
         //check if info is in database
         for (LoginInfo login : loginInfo) {
             if (login.getUserName().equals(username) && login.getPassword().equals(password)) {
+                //send the login info to the client
+                Gson gson = new Gson();
+                String json = gson.toJson(login);
+                //add a code along with the json
+                clientHandler.sendToClient("LOGIN INFORMATION: " + json);
                 clientHandler.sendToClient("LOGGED IN: " + username);
                 return;
             }

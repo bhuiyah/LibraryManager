@@ -5,14 +5,16 @@ public class Entry implements Serializable {
     private String title;
     private String genre;
     private String author;
-    private boolean checked_out;
+    private String available;
+    private String media_type;
 
-    public Entry(String last_checked_out, String title, String genre, String author, boolean checked_out) {
+    public Entry(String last_checked_out, String title, String genre, String author, String available, String media_type) {
         this.last_checked_out = last_checked_out;
         this.title = title;
         this.genre = genre;
         this.author = author;
-        this.checked_out = checked_out;
+        this.available = available;
+        this.media_type = media_type;
     }
 
     public String getLast_checked_out() {
@@ -47,22 +49,19 @@ public class Entry implements Serializable {
         this.author = author;
     }
 
-    public boolean isChecked_out() {
-        return checked_out;
+    public String getAvailable() {
+        return available;
     }
 
-    public void setChecked_out(boolean checked_out) {
-        this.checked_out = checked_out;
+    public void setAvailable(String available) {
+        this.available = available;
     }
 
-    @Override
-    public String toString() {
-        return "Entry{" +
-                "last_checked_out='" + last_checked_out + '\'' +
-                ", title='" + title + '\'' +
-                ", genre='" + genre + '\'' +
-                ", author='" + author + '\'' +
-                ", checked_out=" + checked_out +
-                '}';
+    public String getMedia_type() {
+        return media_type;
+    }
+
+    public void setMedia_type(String media_type) {
+        this.media_type = media_type;
     }
 }

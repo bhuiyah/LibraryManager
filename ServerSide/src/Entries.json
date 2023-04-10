@@ -1,114 +1,130 @@
 [
-{
-  "last_checked_out": "",
-  "title": "To Kill a Mockingbird",
-  "genre": "Classic",
-  "author": "Harper Lee",
-  "borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Great Gatsby",
-"genre": "Classic",
-"author": "F. Scott Fitzgerald",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "1984",
-"genre": "Science Fiction",
-"author": "George Orwell",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "Pride and Prejudice",
-"genre": "Classic",
-"author": "Jane Austen",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "To the Lighthouse",
-"genre": "Modernist",
-"author": "Virginia Woolf",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Road",
-"genre": "Post-Apocalyptic",
-"author": "Cormac McCarthy",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "Atonement",
-"genre": "Historical Fiction",
-"author": "Ian McEwan",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Catcher in the Rye",
-"genre": "Coming-of-Age",
-"author": "J.D. Salinger",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "Slaughterhouse-Five",
-"genre": "Science Fiction",
-"author": "Kurt Vonnegut",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Picture of Dorian Gray",
-"genre": "Gothic",
-"author": "Oscar Wilde",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Bell Jar",
-"genre": "Autobiographical",
-"author": "Sylvia Plath",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Sound and the Fury",
-"genre": "Modernist",
-"author": "William Faulkner",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Sun Also Rises",
-"genre": "Modernist",
-"author": "Ernest Hemingway",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Grapes of Wrath",
-"genre": "Historical Fiction",
-"author": "John Steinbeck",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "Beloved",
-"genre": "Historical Fiction",
-"author": "Toni Morrison",
-"borrowed": false
-},
-{
-"last_checked_out": "",
-"title": "The Color Purple",
-"genre": "Historical Fiction",
-"author": "Alice Walker",
-"borrowed": false
-}
-]
+  {
+    "last_checked_out": "",
+    "title": "To Kill a Mockingbird",
+    "genre": "Classic",
+    "author": "Harper Lee",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Great Gatsby",
+    "genre": "Classic",
+    "author": "F. Scott Fitzgerald",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "1984",
+    "genre": "Science Fiction",
+    "author": "George Orwell",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "Pride and Prejudice",
+    "genre": "Classic",
+    "author": "Jane Austen",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "To the Lighthouse",
+    "genre": "Modernist",
+    "author": "Virginia Woolf",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Road",
+    "genre": "Post-Apocalyptic",
+    "author": "Cormac McCarthy",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "Atonement",
+    "genre": "Historical Fiction",
+    "author": "Ian McEwan",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Catcher in the Rye",
+    "genre": "Coming-of-Age",
+    "author": "J.D. Salinger",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "Slaughterhouse-Five",
+    "genre": "Science Fiction",
+    "author": "Kurt Vonnegut",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Picture of Dorian Gray",
+    "genre": "Gothic",
+    "author": "Oscar Wilde",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Bell Jar",
+    "genre": "Autobiographical",
+    "author": "Sylvia Plath",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Sound and the Fury",
+    "genre": "Modernist",
+    "author": "William Faulkner",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Sun Also Rises",
+    "genre": "Modernist",
+    "author": "Ernest Hemingway",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Grapes of Wrath",
+    "genre": "Historical Fiction",
+    "author": "John Steinbeck",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "Beloved",
+    "genre": "Historical Fiction",
+    "author": "Toni Morrison",
+    "available": "Yes",
+    "media_type": "Book"
+  },
+  {
+    "last_checked_out": "",
+    "title": "The Color Purple",
+    "genre": "Historical Fiction",
+    "author": "Alice Walker",
+    "available": "Yes",
+    "media_type": "Book"
+    }
+    ]

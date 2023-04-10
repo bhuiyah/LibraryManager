@@ -1,23 +1,22 @@
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.TextFlow;
-import javafx.scene.control.TableView;
 
 import java.net.URL;
-import java.util.HashSet;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 public class CatalogueController implements Initializable {
 
     String UserName;
     Set<Entry> entries = new HashSet<>();
+    Set<String> history = new HashSet<>();
 
     @FXML
     private TextFlow TopBar;
@@ -37,12 +36,62 @@ public class CatalogueController implements Initializable {
     @FXML
     private TableColumn<Entry, String> GenreView;
     @FXML
-    private TableColumn<Entry, String> CheckOutView;
-
-
+    private TableColumn<Entry, String> CheckedOutView;
+    @FXML
+    private Pane DashPane;
+    @FXML
+    private Button DashButton;
+    @FXML
+    private ListView<String> CartList;
+    @FXML
+    private Button CheckoutEntryButton;
+    @FXML
+    private Button DeleteEntryButton;
+    @FXML
+    private Button ResetEntryButton;
+    @FXML
+    private TextFlow CartText;
+    @FXML
+    private Button SearchButton;
+    @FXML
+    private TextField SearchBar;
+    @FXML
+    private Button ResetSearch;
+    @FXML
+    private TextFlow HistoryLabel;
+    @FXML
+    private ListView<String> HistoryList;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        System.out.println("Catalogue Controller Initialized");
+        //set the maininterface pane to the dashboard pane
+        MainInterfacePane.getChildren().clear();
+        MainInterfacePane.getChildren().add(DashPane);
+        CartList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                String selectedItem = CartList.getSelectionModel().getSelectedItem();
+                CartList.getItems().remove(selectedItem);
+            }
+        });
+        CartList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        CartText.getChildren().add(new javafx.scene.text.Text("Your Cart:"));
+        HistoryLabel.getChildren().add(new javafx.scene.text.Text("Your History:"));
+    }
 
+    public void DashButtonPressed(){
+        System.out.println("Dashboard Button Pressed");
+        //put dashboard pane on top of main interface pane
+        MainInterfacePane.getChildren().clear();
+        MainInterfacePane.getChildren().add(DashPane);
+        //populate the historyList with the user's history
+        HistoryList.getItems().clear();
+        for(String s : history){
+            HistoryList.getItems().add(s);
+        }
+    }
+
+    public void setHistory(Set<String> history){
+        this.history = history;
     }
 
     public void setUserName(String UserName){
@@ -60,16 +109,129 @@ public class CatalogueController implements Initializable {
     public void CheckoutButtonPressed(){
         System.out.println("Checkout Button Pressed");
         //put checkout pane on top of main interface pane
+        MainInterfacePane.getChildren().clear();
         MainInterfacePane.getChildren().add(CheckOutPane);
         populateTableView();
     }
 
+    public void SearchButtonPressed(){
+        //check the contents of the search bar
+        String SearchText = SearchBar.getText();
+        //if the search bar is empty, populate the tableview with all entries
+        if(SearchText.equals("")){
+            populateTableView();
+        }
+        //if the search bar is not empty, search for entries that contain the search text
+        else{
+            //clear the tableview
+            TableView.getItems().clear();
+            //create a new list to store the entries in
+            List<Entry> entryList = new ArrayList<>();
+            //loop through the entries
+            for(Entry entry : entries){
+                //if the entry contains the search text, add it to the list
+                if(entry.getTitle().contains(SearchText) || entry.getAuthor().contains(SearchText) || entry.getGenre().contains(SearchText)){
+                    entryList.add(entry);
+                }
+            }
+            //create ObservableList from the entryList
+            ObservableList<Entry> data = FXCollections.observableArrayList(entryList);
+            //set the items of the TableView to the ObservableList
+            TableView.setItems(data);
+            //set the cell value factories for each of the columns
+            TitleView.setCellValueFactory(new PropertyValueFactory<>("title"));
+            AuthorView.setCellValueFactory(new PropertyValueFactory<>("author"));
+            GenreView.setCellValueFactory(new PropertyValueFactory<>("genre"));
+            CheckedOutView.setCellValueFactory(new PropertyValueFactory<>("available"));
+            //if the entry is available, set the color to green
+            CheckedOutView.setCellFactory(column -> {
+                return new TableCell<Entry, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setText(null);
+                            setStyle("");
+                        } else {
+                            setText(item);
+                            if (item.equals("Yes")) {
+                                setStyle("-fx-text-fill: green;");
+                            } else {
+                                setStyle("-fx-text-fill: red;");
+                            }
+                        }
+                    }
+                };
+            });
+        }
+    }
+
+    public void ResetSearchPressed(){
+        //clear the search bar
+        SearchBar.clear();
+        //populate the tableview with all entries
+        populateTableView();
+    }
+
     public void populateTableView(){
-        //populate each column with the appropriate data
-        TitleView.setCellValueFactory(new PropertyValueFactory<Entry, String>("title"));
-        AuthorView.setCellValueFactory(new PropertyValueFactory<Entry, String>("author"));
-        GenreView.setCellValueFactory(new PropertyValueFactory<Entry, String>("genre"));
-        CheckOutView.setCellValueFactory(new PropertyValueFactory<Entry, String>("checked_out"));
+        // Clear the existing items in the TableView
+        TableView.getItems().clear();
+
+        // Create a new list to store the entries in
+        List<Entry> entryList = new ArrayList<>(entries);
+
+        // Create ObservableList from the entryList
+        ObservableList<Entry> data = FXCollections.observableArrayList(entryList);
+
+        // Set the items of the TableView to the ObservableList
+        TableView.setItems(data);
+
+        // Set the cell value factories for each of the columns
+        TitleView.setCellValueFactory(new PropertyValueFactory<>("title"));
+        AuthorView.setCellValueFactory(new PropertyValueFactory<>("author"));
+        GenreView.setCellValueFactory(new PropertyValueFactory<>("genre"));
+        CheckedOutView.setCellValueFactory(new PropertyValueFactory<>("available"));
+        //if the entry is available, set the color to green
+        CheckedOutView.setCellFactory(column -> {
+            return new TableCell<Entry, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                        if (item.equals("Yes")) {
+                            setStyle("-fx-text-fill: green;");
+                        } else {
+                            setStyle("-fx-text-fill: red;");
+                        }
+                    }
+                }
+            };
+        });
+    }
+
+    public void selectEntry(){
+        //check if the entry is available and already in the CartList
+        //if the entry is availble and not in the CartList, add it to the CartList
+        Entry selectedEntry = TableView.getSelectionModel().getSelectedItem();
+        if(selectedEntry.getAvailable().equals("Yes") && !CartList.getItems().contains(selectedEntry.getTitle())){
+            System.out.println(selectedEntry.getTitle());
+            CartList.getItems().add(selectedEntry.getTitle());
+        }
+    }
+
+    public void DeleteEntryButtonPressed(){
+        //remove all the selected items from the CartList
+        ObservableList<String> selectedItems = CartList.getSelectionModel().getSelectedItems();
+        CartList.getItems().removeAll(selectedItems);
+    }
+
+    public void ResetEntryButtonPressed(){
+        //clear the CartList
+        CartList.getItems().clear();
     }
 
 }
