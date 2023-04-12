@@ -19,8 +19,9 @@ class Server extends Observable {
         try {
             Gson gson = new Gson();
             books = gson.fromJson(new FileReader("src/Entries.json"), Entry[].class);
-            LoginInfo[] loginArray = gson.fromJson(new FileReader("src/LoginInfo.json"), LoginInfo[].class);
-            loginInfo = new HashSet<>(Arrays.asList(loginArray));
+            //get the LoginInfo data from loginInfo.json and store it in loginInfo
+            LoginInfo[] loginInfos = gson.fromJson(new FileReader("src/loginInfo.json"), LoginInfo[].class);
+            loginInfo = new HashSet(Arrays.asList(loginInfos));
             sockets = new HashSet<>();
             setUpNetworking();
 
@@ -49,7 +50,8 @@ class Server extends Observable {
     }
 
     public void processRegistration(String username, String password, ClientHandler clientHandler) {
-        LoginInfo info = new LoginInfo(username, password, new ArrayList<String>());
+        //make a new loginInfo object
+        LoginInfo info = new LoginInfo(username, password, new ArrayList<>());
         //check if info is in database
         for (LoginInfo login : loginInfo) {
             if (login.getUserName().equals(username)) {
@@ -65,15 +67,15 @@ class Server extends Observable {
     }
 
     public void processLogin(String username, String password, ClientHandler clientHandler) {
-        LoginInfo info = new LoginInfo(username, password, new ArrayList<String>());
+        LoginInfo info = new LoginInfo(username, password, new ArrayList<>());
         //check if info is in database
         for (LoginInfo login : loginInfo) {
-            if (login.getUserName().equals(username) && login.getPassword().equals(password)) {
+            if (login.getUserName().equals(username) && login.getPassword().equals(password)){
                 //send the login info to the client
                 Gson gson = new Gson();
                 String json = gson.toJson(login);
                 //add a code along with the json
-                clientHandler.sendToClient("LOGIN INFORMATION: " + json);
+                clientHandler.sendToClient("LOGIN INFORMATION " + json);
                 clientHandler.sendToClient("LOGGED IN: " + username);
                 return;
             }

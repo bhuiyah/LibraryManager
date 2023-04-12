@@ -15,7 +15,6 @@ public class Client extends Application {
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
     private PrintWriter toServer;
-    private Scanner consoleInput = new Scanner(System.in);
     static Parent root;
     static FXMLLoader loader;
     public static Scene scene;
@@ -76,12 +75,11 @@ public class Client extends Application {
                         }
                         else if(input.startsWith("LOGIN INFORMATION")){
                             //input will have a "LOGIN INFORMATION" followed by a space and then the login info in the form of a json string
+                            //get rid of LOGIN INFORMATION and grab the json string
                             String[] tokens = input.split(" ");
-                            if (tokens.length == 2) {
-                                String loginInfoString = tokens[1];
-                                Gson gson = new Gson();
-                                loginInfo = gson.fromJson(loginInfoString, LoginInfo.class);
-                            }
+                            String json = tokens[2];
+                            Gson gson = new Gson();
+                            loginInfo = gson.fromJson(json, LoginInfo.class);
                         }
 //                        else if(input.startsWith("INVALID REGISTER")){
 //                            loginController.setRegisterError("Invalid Register");
@@ -213,10 +211,6 @@ public class Client extends Application {
         readerThread.start();
     }
 
-    protected void processRequest(String input) {
-        return;
-    }
-
     protected void accessCatalogue(Set<Entry> books) {
         Platform.runLater(() -> {
             try {
@@ -226,8 +220,10 @@ public class Client extends Application {
                 catalogueController.setUserName(username);
                 catalogueController.setTopBar();
                 catalogueController.setEntries(books);
-                //set the history
-
+                catalogueController.setLoginInfo(loginInfo);
+                HashSet<LoginInfo.IssuedItem> issuedItems = new HashSet<>(loginInfo.getIssuedItems());
+                catalogueController.setHistory(issuedItems);
+                catalogueController.populateCurrentlyIssuedList();
                 scene = new Scene(root);
                 stage.setScene(scene);
                 stage.setTitle("Library");

@@ -1,4 +1,3 @@
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,11 +15,11 @@ public class CatalogueController implements Initializable {
 
     String UserName;
     Set<Entry> entries = new HashSet<>();
-    Set<String> history = new HashSet<>();
+    Set<LoginInfo.IssuedItem> history = new HashSet<>();
+    LoginInfo loginInfo;
 
     @FXML
     private TextFlow TopBar;
-
     @FXML
     private Button CheckOutButton;
     @FXML
@@ -58,9 +57,20 @@ public class CatalogueController implements Initializable {
     @FXML
     private Button ResetSearch;
     @FXML
-    private TextFlow HistoryLabel;
+    private TextFlow CurrentlyIssuedLabel;
     @FXML
-    private ListView<String> HistoryList;
+    private ListView<String> CurrentlyIssuedList;
+    @FXML
+    private Button BackButtonOnCheckOutScreen;
+    @FXML
+    private ListView<String> CartListToCheckOut;
+    @FXML
+    private DatePicker DatePicker;
+    @FXML
+    private Button FinalizeCheckOutButton;
+    @FXML
+    private Pane FinalizeScreen;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Catalogue Controller Initialized");
@@ -75,7 +85,7 @@ public class CatalogueController implements Initializable {
         });
         CartList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         CartText.getChildren().add(new javafx.scene.text.Text("Your Cart:"));
-        HistoryLabel.getChildren().add(new javafx.scene.text.Text("Your History:"));
+        CurrentlyIssuedLabel.getChildren().add(new javafx.scene.text.Text("Currently Checked Out:"));
     }
 
     public void DashButtonPressed(){
@@ -84,13 +94,25 @@ public class CatalogueController implements Initializable {
         MainInterfacePane.getChildren().clear();
         MainInterfacePane.getChildren().add(DashPane);
         //populate the historyList with the user's history
-        HistoryList.getItems().clear();
-        for(String s : history){
-            HistoryList.getItems().add(s);
+        CurrentlyIssuedList.getItems().clear();
+        populateCurrentlyIssuedList();
+    }
+
+    public void populateCurrentlyIssuedList(){
+        CurrentlyIssuedList.getItems().clear();
+        for (LoginInfo.IssuedItem item : history){
+            CurrentlyIssuedList.getItems().add(item.getItem());
         }
     }
 
-    public void setHistory(Set<String> history){
+    public void CheckOutEntryButtonPressed(){
+        System.out.println("Checkout Entry Button Pressed");
+        //get all the items in the cart
+        ObservableList<String> items = CartList.getItems();
+
+    }
+
+    public void setHistory(HashSet<LoginInfo.IssuedItem> history){
         this.history = history;
     }
 
@@ -104,6 +126,10 @@ public class CatalogueController implements Initializable {
 
     public void setEntries(Set<Entry> entries){
         this.entries = entries;
+    }
+
+    public void setLoginInfo(LoginInfo loginInfo){
+        this.loginInfo = loginInfo;
     }
 
     public void CheckoutButtonPressed(){
@@ -232,6 +258,32 @@ public class CatalogueController implements Initializable {
     public void ResetEntryButtonPressed(){
         //clear the CartList
         CartList.getItems().clear();
+    }
+
+    public void goToCheckout(){
+        //put checkout pane on top of main interface pane
+        if(CartList.getItems().size() > 0){
+            MainInterfacePane.getChildren().clear();
+            MainInterfacePane.getChildren().add(FinalizeScreen);
+            //put all the cartlist items into the cartlisttocheckout
+            CartListToCheckOut.getItems().clear();
+            for(String item : CartList.getItems()){
+                CartListToCheckOut.getItems().add(item);
+            }
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("No items in cart");
+            alert.setContentText("Please add items to your cart before checking out");
+            alert.showAndWait();
+        }
+    }
+
+    public void BackButtonOnCheckoutPressed(){
+        //put the previous screen the user was in on the main interface
+        MainInterfacePane.getChildren().clear();
+        MainInterfacePane.getChildren().add(CheckOutPane);
     }
 
 }

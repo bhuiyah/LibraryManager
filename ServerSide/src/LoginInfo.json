@@ -1,17 +1,35 @@
- [
-        {
-            "UserName": "user1",
-            "Password": "pass1",
-            "issuedItems": ["item1", "item2"]
-        },
-        {
-            "UserName": "user2",
-            "Password": "pass2",
-            "issuedItems": ["item3"]
-        },
-        {
-            "UserName": "user3",
-            "Password": "pass3",
-            "issuedItems": []
-        }
+[
+  {
+    "UserName": "user1",
+    "Password": "pass1",
+    "issuedItems":
+    [
+      {
+        "item": "item1",
+        "issuedDate": "2023-04-11",
+        "dueDate": "2023-04-18"
+      },
+      {
+        "item": "item2",
+        "issuedDate": "2023-04-11",
+        "dueDate": "2023-04-18"
+      }
     ]
+},
+  {
+    "UserName": "user2",
+    "Password": "pass2",
+    "issuedItems": [
+      {
+        "item": "item3",
+        "issuedDate": "2023-04-11",
+        "dueDate": "2023-04-18"
+      }
+    ]
+  },
+  {
+    "UserName": "user3",
+    "Password": "pass3",
+    "issuedItems": []
+  }
+]
