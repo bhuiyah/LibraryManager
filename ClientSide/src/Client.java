@@ -217,6 +217,7 @@ public class Client extends Application {
                 loader = new FXMLLoader(getClass().getResource("Catalogue.fxml"));
                 root = loader.load();
                 catalogueController = loader.getController();
+                catalogueController.setClient(this);
                 catalogueController.setUserName(username);
                 catalogueController.setTopBar();
                 catalogueController.setEntries(books);

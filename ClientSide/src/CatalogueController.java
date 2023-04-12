@@ -7,6 +7,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.TextFlow;
+import java.time.LocalDate;
 
 import java.net.URL;
 import java.util.*;
@@ -17,6 +18,8 @@ public class CatalogueController implements Initializable {
     Set<Entry> entries = new HashSet<>();
     Set<LoginInfo.IssuedItem> history = new HashSet<>();
     LoginInfo loginInfo;
+    ArrayList<LoginInfo.IssuedItem> checkOutList = new ArrayList<>();
+    Client client;
 
     @FXML
     private TextFlow TopBar;
@@ -63,9 +66,13 @@ public class CatalogueController implements Initializable {
     @FXML
     private Button BackButtonOnCheckOutScreen;
     @FXML
-    private ListView<String> CartListToCheckOut;
+    private javafx.scene.control.TableView<LoginInfo.IssuedItem> CartListToCheckOut;
     @FXML
-    private DatePicker DatePicker;
+    private TableColumn<String, String> ItemOnFinalList;
+    @FXML
+    private TableColumn<String, String> DueDateOnFinalList;
+    @FXML
+    private TableColumn<String, String> StartDateOnFinalList;
     @FXML
     private Button FinalizeCheckOutButton;
     @FXML
@@ -86,6 +93,10 @@ public class CatalogueController implements Initializable {
         CartList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         CartText.getChildren().add(new javafx.scene.text.Text("Your Cart:"));
         CurrentlyIssuedLabel.getChildren().add(new javafx.scene.text.Text("Currently Checked Out:"));
+    }
+
+    public void setClient(Client client){
+        this.client = client;
     }
 
     public void DashButtonPressed(){
@@ -199,6 +210,8 @@ public class CatalogueController implements Initializable {
         populateTableView();
     }
 
+
+
     public void populateTableView(){
         // Clear the existing items in the TableView
         TableView.getItems().clear();
@@ -267,9 +280,7 @@ public class CatalogueController implements Initializable {
             MainInterfacePane.getChildren().add(FinalizeScreen);
             //put all the cartlist items into the cartlisttocheckout
             CartListToCheckOut.getItems().clear();
-            for(String item : CartList.getItems()){
-                CartListToCheckOut.getItems().add(item);
-            }
+            populateCartListToCheckOut();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -284,6 +295,26 @@ public class CatalogueController implements Initializable {
         //put the previous screen the user was in on the main interface
         MainInterfacePane.getChildren().clear();
         MainInterfacePane.getChildren().add(CheckOutPane);
+    }
+
+    public void populateCartListToCheckOut(){
+        //cartlisttocheckout is a tableview, populate with the items in the cartlist, populate the columns with dates
+        CartListToCheckOut.getItems().clear();
+        List<String> entryList = new ArrayList<>(CartList.getItems());
+        ObservableList<String> data = FXCollections.observableArrayList(entryList);
+        //make a new Observable List of type IssuedItem that converts all the items in data to an IssuedItem and put in the new list
+        ObservableList<LoginInfo.IssuedItem> data2 = FXCollections.observableArrayList();
+        for(String item : data){
+            data2.add(new LoginInfo.IssuedItem(item, LocalDate.now().toString(), LocalDate.now().plusDays(14).toString()));
+        }
+        CartListToCheckOut.setItems(data2);
+        //set each column of ItemOnFinalList to each item in the cartlist
+        ItemOnFinalList.setCellValueFactory(new PropertyValueFactory<>("item"));
+        //set each column of StartDateOnFinalList to the current date using LocalDate.now()
+        StartDateOnFinalList.setCellValueFactory(new PropertyValueFactory<>("issuedDate"));
+        //set each column of  to the current date + 14 days
+        DueDateOnFinalList.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
+
     }
 
 }
