@@ -144,6 +144,8 @@ public class CatalogueController implements Initializable {
 
     public void setEntries(Set<Entry> entries){
         this.entries = entries;
+        //update all the tableviews
+        populateTableView();
     }
 
     public void setLoginInfo(LoginInfo loginInfo){

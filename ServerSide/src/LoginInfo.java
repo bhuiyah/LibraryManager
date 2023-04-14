@@ -80,5 +80,10 @@ public class LoginInfo implements Serializable {
         public void setDueDate(String dueDate) {
             this.dueDate = dueDate;
         }
+
+        public String toString(){
+            //The Catcher in the Rye,2023-04-14,2023-04-28
+            return item + "," + issuedDate + "," + dueDate;
+        }
     }
 }

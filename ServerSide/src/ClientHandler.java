@@ -73,13 +73,14 @@ class ClientHandler implements Runnable, Observer {
           ArrayList<LoginInfo.IssuedItem> issuedItems = new ArrayList<>();
             for(String book : books.split(";")){
               //split each book by the comma
-                String[] bookInfo = book.split(",");
+              String[] bookInfo = book.split(",");
                 //create a new IssuedItem object
               LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
               issuedItems.add(item);
             }
-            //create an array of Book objects
-          server.processCheckout(issuedItems, username, this);
+          for(LoginInfo.IssuedItem item : issuedItems){
+            server.processCheckout(username, item.toString(), this);
+          }
         }
       }
     } catch (IOException e) {

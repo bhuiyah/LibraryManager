@@ -11,6 +11,7 @@ class Server extends Observable {
     Set<LoginInfo> loginInfo;
     int clientCounter = 0;
     Set<Socket> sockets;
+    ObjectOutputStream out;
     public static void main(String[] args) {
         new Server().runServer();
     }
@@ -41,7 +42,7 @@ class Server extends Observable {
             sockets.add(clientSocket);
             ClientHandler handler = new ClientHandler(this, clientSocket);
             this.addObserver(handler);
-            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+            out = new ObjectOutputStream(clientSocket.getOutputStream());
             //send books to client
             out.writeObject(books);
             Thread t = new Thread(handler);
@@ -90,36 +91,39 @@ class Server extends Observable {
         clientHandler.getClientSocket().close();
     }
 
-    public void processCheckout(String username, String bookName, ClientHandler clientHandler) {
+    public void processCheckout(String username, String issuedItem, ClientHandler clientHandler) throws IOException {
         //check if book is in database
+        //split issueditem into name, issued date, and due date
+        String[] split = issuedItem.split(",");
+        String bookName = split[0];
+        String issuedDate = split[1];
+        String dueDate = split[2];
         for (Entry book : books) {
             if (book.getTitle().equals(bookName)) {
                 //check if book is available
-                if (book.getAvailable()) {
+                if (Objects.equals(book.getAvailable(), "Yes")) {
                     //check if user has already checked out the book
                     for (LoginInfo login : loginInfo) {
                         if (login.getUserName().equals(username)) {
-                            for (String bookName2 : login.getBooks()) {
-                                if (bookName2.equals(bookName)) {
-                                    clientHandler.sendToClient("ALREADY CHECKED OUT " + bookName);
-                                    return;
+                            for (LoginInfo.IssuedItem bookName2 : login.getIssuedItems()) {
+                                if (bookName2.getItem().equals(bookName)) {
+                                    clientHandler.sendToClient("ALREADY CHECKED OUT " + issuedItem);
                                 }
                             }
-                        }
-                    }
-                    //check out the book
-                    for (LoginInfo login : loginInfo) {
-                        if (login.getUserName().equals(username)) {
-                            login.getBooks().add(bookName);
-                            book.setAvailable(false);
-                            clientHandler.sendToClient("CHECKED OUT " + bookName);
-                            return;
+                            login.getIssuedItems().add(new LoginInfo.IssuedItem(bookName, issuedDate, dueDate));
+                            book.setAvailable("No");
+                            clientHandler.sendToClient("CHECKED OUT " + issuedItem);
+                            out = new ObjectOutputStream(clientHandler.getClientSocket().getOutputStream());
+                            //send books to client
+                            out.writeObject(books);
+                            //have all the clients update their books using Observable and Observer
+//                            setChanged();
+//                            notifyObservers(books);
                         }
                     }
                 }
                 else {
                     clientHandler.sendToClient("NOT AVAILABLE " + bookName);
-                    return;
                 }
             }
         }

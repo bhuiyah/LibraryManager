@@ -101,6 +101,21 @@ public class Client extends Application {
                                 e.printStackTrace();
                             }
                         }
+                        else if(input.startsWith("CHECKED OUT")){
+                            ObjectInputStream io = new ObjectInputStream(socket.getInputStream());
+                            try {
+                                Entry[] bookArr = (Entry[]) io.readObject();
+                                books = new HashSet<>(Arrays.asList(bookArr));
+                                Platform.runLater(() -> {
+                                    catalogueController.setEntries(books);
+                                });
+                            } catch (EOFException e) {
+                                break;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
 //                        else if(input.startsWith("BOOKS")){
 //                            String[] tokens = input.split(":");
 //                            if (tokens.length == 2) {
