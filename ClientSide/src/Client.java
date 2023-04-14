@@ -21,6 +21,7 @@ public class Client extends Application {
     public static Stage stage;
     public volatile LoginController loginController;
     public volatile CatalogueController catalogueController;
+    Socket socket;
     Set<Entry> books;
     String username = "";
     LoginInfo loginInfo;
@@ -34,8 +35,7 @@ public class Client extends Application {
     }
 
     private void setUpNetworking() throws Exception {
-        @SuppressWarnings("resource")
-        Socket socket = new Socket(host, 4242);
+        socket = new Socket(host, 4242);
         System.out.println("Connecting to... " + socket);
         toServer = new PrintWriter(socket.getOutputStream());
         fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -164,47 +164,41 @@ public class Client extends Application {
             @Override
             public void run() {
                 while (!socket.isClosed()) {
-                    if(loader.getController().getClass().equals(LoginController.class)){
+                    loginController = loader.getController();
+                    if (loginController.buttonPressed.equals("Register")) {
+                        if (loginController != null && !Objects.equals(loginController.getUserName(), "") && !Objects.equals(loginController.getPassword(), "")) {
+                            String message = "REGISTER:" + loginController.getUserName() + ":" + loginController.getPassword();
+                            try {
+                                sendToServer(message);
+                                username = loginController.getUserName();
+                                loginController.setUserName("");
+                                loginController.setPassword("");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    } else if (loginController.buttonPressed.equals("Login")) {
                         loginController = loader.getController();
-                        if(loginController.buttonPressed.equals("Register")) {
-                            if (loginController != null && !Objects.equals(loginController.getUserName(), "") && !Objects.equals(loginController.getPassword(), "")) {
-                                String message = "REGISTER:" + loginController.getUserName() + ":" + loginController.getPassword();
-                                try {
-                                    sendToServer(message);
-                                    username = loginController.getUserName();
-                                    loginController.setUserName("");
-                                    loginController.setPassword("");
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        }
-                        else if(loginController.buttonPressed.equals("Login")) {
-                            loginController = loader.getController();
-                            if (loginController != null && !Objects.equals(loginController.getUserName(), "") && !Objects.equals(loginController.getPassword(), "")) {
-                                String message = "LOGIN:" + loginController.getUserName() + ":" + loginController.getPassword();
-                                try {
-                                    sendToServer(message);
-                                    username = loginController.getUserName();
-                                    loginController.setUserName("");
-                                    loginController.setPassword("");
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
+                        if (loginController != null && !Objects.equals(loginController.getUserName(), "") && !Objects.equals(loginController.getPassword(), "")) {
+                            String message = "LOGIN:" + loginController.getUserName() + ":" + loginController.getPassword();
+                            try {
+                                sendToServer(message);
+                                username = loginController.getUserName();
+                                loginController.setUserName("");
+                                loginController.setPassword("");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
                         }
                     }
-                    else if(loader.getController().getClass().equals(CatalogueController.class)){
-                        catalogueController = loader.getController();
-                    }
-                    stage.setOnCloseRequest(EventListener -> {
-                        try {
-                            sendToServer("LOGOUT");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
                 }
+                stage.setOnCloseRequest(EventListener -> {
+                    try {
+                        sendToServer("LOGOUT");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         });
         writerThread.start();
@@ -233,6 +227,44 @@ public class Client extends Application {
                 e.printStackTrace();
             }
         });
+        System.out.println("Catalogue accessed");
+        //create a new thread for the catalogue
+        Thread writerThread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //delay so that the catalogue controller is loaded
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("running");
+                catalogueController = loader.getController();
+                    while (!socket.isClosed()) {
+                        catalogueController = loader.getController();
+                        if (catalogueController.buttonPressed.equals("CheckOut")) {
+                            if (catalogueController != null && catalogueController.getCheckOutList() != null) {
+                                String message = "CHECKOUT:" + username + ":" + catalogueController.getCheckOutList();
+                                try {
+                                    sendToServer(message);
+                                    catalogueController.setCheckOutList(new ArrayList<>());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                    }
+                stage.setOnCloseRequest(EventListener -> {
+                    try {
+                        sendToServer("LOGOUT");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
+        System.out.println("Starting writer thread");
+        writerThread2.start();
     }
 
     protected void sendToServer(String info) throws IOException {

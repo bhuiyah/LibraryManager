@@ -20,6 +20,7 @@ public class CatalogueController implements Initializable {
     LoginInfo loginInfo;
     ArrayList<LoginInfo.IssuedItem> checkOutList = new ArrayList<>();
     Client client;
+    String buttonPressed = "";
 
     @FXML
     private TextFlow TopBar;
@@ -77,6 +78,11 @@ public class CatalogueController implements Initializable {
     private Button FinalizeCheckOutButton;
     @FXML
     private Pane FinalizeScreen;
+    @FXML
+    private Button FinalizeScreenDeleteButton;
+    @FXML
+    private TextFlow NoteAboutCheckingOut;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -93,6 +99,7 @@ public class CatalogueController implements Initializable {
         CartList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         CartText.getChildren().add(new javafx.scene.text.Text("Your Cart:"));
         CurrentlyIssuedLabel.getChildren().add(new javafx.scene.text.Text("Currently Checked Out:"));
+        CartListToCheckOut.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     public void setClient(Client client){
@@ -149,6 +156,8 @@ public class CatalogueController implements Initializable {
         MainInterfacePane.getChildren().clear();
         MainInterfacePane.getChildren().add(CheckOutPane);
         populateTableView();
+        NoteAboutCheckingOut.getChildren().clear();
+        NoteAboutCheckingOut.getChildren().add(new javafx.scene.text.Text("Note: Make sure that you will be able to return the item before the due date. If you cannot, you will be charged a late fee. Please see the librarian for more information."));
     }
 
     public void SearchButtonPressed(){
@@ -314,7 +323,31 @@ public class CatalogueController implements Initializable {
         StartDateOnFinalList.setCellValueFactory(new PropertyValueFactory<>("issuedDate"));
         //set each column of  to the current date + 14 days
         DueDateOnFinalList.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
+    }
 
+    public void FinalizeScreenDeleteButtonPressed(){
+        //remove all the selected items from the CartListToCheckOut
+        ObservableList<LoginInfo.IssuedItem> selectedItems = CartListToCheckOut.getSelectionModel().getSelectedItems();
+        CartListToCheckOut.getItems().removeAll(selectedItems);
+    }
+
+    public void FinalizeCheckOutButtonPressed(){
+        //make each entry in the CartListToCheckOut an IssuedItem and add it to the current user's issued items
+        checkOutList.addAll(CartListToCheckOut.getItems());
+        buttonPressed = "CheckOut";
+    }
+
+    public void setCheckOutList(ArrayList<LoginInfo.IssuedItem> checkOutList){
+        this.checkOutList = checkOutList;
+    }
+
+    public String getCheckOutList(){
+        //return the checkOutList as a string that can be turned into a ArrayList<LoginInfo.IssuedItem> later
+        StringBuilder checkOutListString = new StringBuilder();
+        for(LoginInfo.IssuedItem item : checkOutList){
+            checkOutListString.append(item.getItem()).append(",").append(item.getIssuedDate()).append(",").append(item.getDueDate()).append(";");
+        }
+        return checkOutListString.toString();
     }
 
 }

@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Observer;
 import java.util.Observable;
 
@@ -58,6 +59,27 @@ class ClientHandler implements Runnable, Observer {
         }
         if(input.startsWith("LOGOUT")){
           server.processClientLogOff(this);
+        }
+        if(input.startsWith("CHECKOUT")){
+          //CHECKOUT:user1:1984,2023-04-14,2023-04-28;The Catcher in the Rye,2023-04-14,2023-04-28; this is the format of the string
+          //split the string by the semicolon
+            String[] tokens = input.split(":");
+            //get the username
+            String username = tokens[1];
+            //get the books
+            String books = tokens[2];
+            //split the books by the comma
+            //change each book into a IssuedItem object
+          ArrayList<LoginInfo.IssuedItem> issuedItems = new ArrayList<>();
+            for(String book : books.split(";")){
+              //split each book by the comma
+                String[] bookInfo = book.split(",");
+                //create a new IssuedItem object
+              LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
+              issuedItems.add(item);
+            }
+            //create an array of Book objects
+          server.processCheckout(issuedItems, username, this);
         }
       }
     } catch (IOException e) {

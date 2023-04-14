@@ -89,4 +89,40 @@ class Server extends Observable {
         clientHandler.sendToClient("LOGOUT");
         clientHandler.getClientSocket().close();
     }
+
+    public void processCheckout(String username, String bookName, ClientHandler clientHandler) {
+        //check if book is in database
+        for (Entry book : books) {
+            if (book.getTitle().equals(bookName)) {
+                //check if book is available
+                if (book.getAvailable()) {
+                    //check if user has already checked out the book
+                    for (LoginInfo login : loginInfo) {
+                        if (login.getUserName().equals(username)) {
+                            for (String bookName2 : login.getBooks()) {
+                                if (bookName2.equals(bookName)) {
+                                    clientHandler.sendToClient("ALREADY CHECKED OUT " + bookName);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    //check out the book
+                    for (LoginInfo login : loginInfo) {
+                        if (login.getUserName().equals(username)) {
+                            login.getBooks().add(bookName);
+                            book.setAvailable(false);
+                            clientHandler.sendToClient("CHECKED OUT " + bookName);
+                            return;
+                        }
+                    }
+                }
+                else {
+                    clientHandler.sendToClient("NOT AVAILABLE " + bookName);
+                    return;
+                }
+            }
+        }
+        clientHandler.sendToClient("NOT FOUND " + bookName);
+    }
 }

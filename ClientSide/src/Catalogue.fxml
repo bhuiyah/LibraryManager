@@ -103,7 +103,7 @@
             </Pane>
             <Pane fx:id="FinalizeScreen" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TableView fx:id="CartListToCheckOut" layoutX="38.0" layoutY="79.0" prefHeight="397.0" prefWidth="902.0">
+                  <TableView fx:id="CartListToCheckOut" layoutX="66.0" layoutY="78.0" prefHeight="397.0" prefWidth="902.0">
                     <columns>
                       <TableColumn fx:id="ItemOnFinalList" prefWidth="262.0" text="Item" />
                       <TableColumn fx:id="StartDateOnFinalList" prefWidth="331.0" text="Start Date" />
@@ -111,7 +111,9 @@
                     </columns>
                   </TableView>
                   <Button fx:id="BackButtonOnCheckOutScreen" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#BackButtonOnCheckoutPressed" prefHeight="37.0" prefWidth="125.0" text="&lt;--" />
-                  <Button fx:id="FinalizeCheckoutButton" layoutX="750.0" layoutY="690.0" mnemonicParsing="false" prefHeight="77.0" prefWidth="160.0" text="Finalize Checkout" />
+                  <Button fx:id="FinalizeCheckoutButton" layoutX="637.0" layoutY="714.0" mnemonicParsing="false" onAction="#FinalizeCheckOutButtonPressed" prefHeight="83.0" prefWidth="166.0" text="Finalize Checkout" />
+                  <Button fx:id="FinalizeScreenDeleteButton" layoutX="218.0" layoutY="714.0" mnemonicParsing="false" onAction="#FinalizeScreenDeleteButtonPressed" prefHeight="83.0" prefWidth="160.0" text="Delete Selected" />
+                  <TextFlow fx:id="NoteAboutCheckingOut" layoutX="65.0" layoutY="490.0" prefHeight="200.0" prefWidth="902.0" />
                </children>
             </Pane>
          </children>
