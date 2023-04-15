@@ -61,9 +61,10 @@ class Server extends Observable {
             }
         }
         Gson gson = new Gson();
-        String json = gson.toJson(loginInfo);
+        String json = gson.toJson(info);
         //add to loginInfo array
         loginInfo.add(info);
+        clientHandler.sendToClient("REGISTRATION INFORMATION " + json);
         clientHandler.sendToClient("REGISTERED: " + username);
     }
 
@@ -94,39 +95,33 @@ class Server extends Observable {
     public void processCheckout(String username, String issuedItem, ClientHandler clientHandler) throws IOException {
         //check if book is in database
         //split issueditem into name, issued date, and due date
-        String[] split = issuedItem.split(",");
-        String bookName = split[0];
-        String issuedDate = split[1];
-        String dueDate = split[2];
-        for (Entry book : books) {
-            if (book.getTitle().equals(bookName)) {
-                //check if book is available
-                if (Objects.equals(book.getAvailable(), "Yes")) {
-                    //check if user has already checked out the book
-                    for (LoginInfo login : loginInfo) {
-                        if (login.getUserName().equals(username)) {
-                            for (LoginInfo.IssuedItem bookName2 : login.getIssuedItems()) {
-                                if (bookName2.getItem().equals(bookName)) {
-                                    clientHandler.sendToClient("ALREADY CHECKED OUT " + issuedItem);
-                                }
+        //issuedItem is coming like this: The Grapes of Wrath,2023-04-15,2023-04-29;Pride and Prejudice,2023-04-15,2023-04-29;The Catcher in the Rye,2023-04-15,2023-04-29;
+        String[] items = issuedItem.split(";");
+        //loop through the items
+        for (String item : items) {
+            //split the item into name, issued date, and due date
+            String[] itemInfo = item.split(",");
+            //check if the book is in the database
+            boolean found = false;
+            for (Entry book : books) {
+                if(found) break;
+                if (book.getTitle().equals(itemInfo[0])) {
+                    found = true;
+                    //check if the book is available
+                    if (book.getAvailable().equals("Yes")) {
+                        //set the book to unavailable
+                        book.setAvailable("No");
+                        //add the book to the user's issued items
+                        for (LoginInfo login : loginInfo) {
+                            if (login.getUserName().equals(username)) {
+                                login.getIssuedItems().add(new LoginInfo.IssuedItem(itemInfo[0], itemInfo[1], itemInfo[2]));
                             }
-                            login.getIssuedItems().add(new LoginInfo.IssuedItem(bookName, issuedDate, dueDate));
-                            book.setAvailable("No");
-                            clientHandler.sendToClient("CHECKED OUT " + issuedItem);
-                            out = new ObjectOutputStream(clientHandler.getClientSocket().getOutputStream());
-                            //send books to client
-                            out.writeObject(books);
-                            //have all the clients update their books using Observable and Observer
-//                            setChanged();
-//                            notifyObservers(books);
                         }
                     }
                 }
-                else {
-                    clientHandler.sendToClient("NOT AVAILABLE " + bookName);
-                }
             }
+            clientHandler.sendToClient("CHECKED OUT");
+            out.writeObject(books);
         }
-        clientHandler.sendToClient("NOT FOUND " + bookName);
     }
 }

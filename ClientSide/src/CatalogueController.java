@@ -127,7 +127,6 @@ public class CatalogueController implements Initializable {
         System.out.println("Checkout Entry Button Pressed");
         //get all the items in the cart
         ObservableList<String> items = CartList.getItems();
-
     }
 
     public void setHistory(HashSet<LoginInfo.IssuedItem> history){

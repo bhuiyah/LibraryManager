@@ -90,6 +90,10 @@ public class LoginController implements Initializable {
         Password = s;
     }
 
+    public void setButtonPressed(String s) {
+        buttonPressed = s;
+    }
+
     public void setLoginError(String invalidLogin) {
         Text text = new Text(invalidLogin);
         text.setFill(Color.RED);

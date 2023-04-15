@@ -78,9 +78,12 @@ class ClientHandler implements Runnable, Observer {
               LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
               issuedItems.add(item);
             }
-          for(LoginInfo.IssuedItem item : issuedItems){
-            server.processCheckout(username, item.toString(), this);
-          }
+            StringBuilder sb = new StringBuilder();
+            for(LoginInfo.IssuedItem item : issuedItems){
+              sb.append(item.toString() + ";");
+            }
+            //send the username and the IssuedItem object to the server
+            server.processCheckout(username, String.valueOf(sb), this);
         }
       }
     } catch (IOException e) {

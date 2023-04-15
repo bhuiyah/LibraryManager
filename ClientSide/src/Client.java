@@ -21,6 +21,7 @@ public class Client extends Application {
     public static Stage stage;
     public volatile LoginController loginController;
     public volatile CatalogueController catalogueController;
+    private Thread writerThread;
     Socket socket;
     Set<Entry> books;
     String username = "";
@@ -65,6 +66,14 @@ public class Client extends Application {
                         if(input.startsWith("REGISTERED")){
                             accessCatalogue(books);
                         }
+                        else if(input.startsWith("REGISTRATION INFORMATION")){
+                            //input will have a "REGISTRATION INFORMATION" followed by a space and then the login info in the form of a json string
+                            //get rid of REGISTRATION INFORMATION and grab the json string
+                            String[] tokens = input.split(" ");
+                            String json = tokens[2];
+                            Gson gson = new Gson();
+                            loginInfo = gson.fromJson(json, LoginInfo.class);
+                        }
                         else if(input.startsWith("LOGGED IN")){
                             accessCatalogue(books);
                         }
@@ -102,9 +111,9 @@ public class Client extends Application {
                             }
                         }
                         else if(input.startsWith("CHECKED OUT")){
-                            ObjectInputStream io = new ObjectInputStream(socket.getInputStream());
                             try {
-                                Entry[] bookArr = (Entry[]) io.readObject();
+                                Thread.sleep(1000);
+                                Entry[] bookArr = (Entry[]) new ObjectInputStream(socket.getInputStream()).readObject();
                                 books = new HashSet<>(Arrays.asList(bookArr));
                                 Platform.runLater(() -> {
                                     catalogueController.setEntries(books);
@@ -115,70 +124,16 @@ public class Client extends Application {
                                 e.printStackTrace();
                             }
                         }
-
-//                        else if(input.startsWith("BOOKS")){
-//                            String[] tokens = input.split(":");
-//                            if (tokens.length == 2) {
-//                                String books = tokens[1];
-//                                catalogueController.setBooks(books);
-//                            }
-//                        }
-//                        else if(input.startsWith("BOOK ADDED")){
-//                            String[] tokens = input.split(":");
-//                            if (tokens.length == 2) {
-//                                String book = tokens[1];
-//                                catalogueController.setBookAdded(book);
-//                            }
-//                        }
-//                        else if(input.startsWith("BOOK REMOVED")){
-//                            String[] tokens = input.split(":");
-//                            if (tokens.length == 2) {
-//                                String book = tokens[1];
-//                                catalogueController.setBookRemoved(book);
-//                            }
-//                        }
-//                        else if(input.startsWith("BOOK NOT FOUND")){
-//                            catalogueController.setBookNotFound();
-//                        }
-//                        else if(input.startsWith("BOOK ALREADY EXISTS")){
-//                            catalogueController.setBookAlreadyExists();
-//                        }
-//                        else if(input.startsWith("BOOK RENTED")){
-//                            String[] tokens = input.split(":");
-//                            if (tokens.length == 2) {
-//                                String book = tokens[1];
-//                                catalogueController.setBookRented(book);
-//                            }
-//                        }
-//                        else if(input.startsWith("BOOK RETURNED")){
-//                            String[] tokens = input.split(":");
-//                            if (tokens.length == 2) {
-//                                String book = tokens[1];
-//                                catalogueController.setBookReturned(book);
-//                            }
-//                        }
-//                        else if(input.startsWith("BOOK NOT RENTED")){
-//                            catalogueController.setBookNotRented();
-//                        }
-//                        else if(input.startsWith("BOOK RENTED BY YOU")){
-//                            catalogueController.setBookRentedByYou();
-//                        }
-//                        else if(input.startsWith("BOOK NOT RENTED BY YOU")){
-//                            catalogueController.setBookNotRentedByYou();
-//                        }
-//                        else if(input.startsWith("BOOK RENTED BY OTHER")){
-//                            catalogueController.setBookRentedByOther();
-//                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
-        Thread writerThread = new Thread(new Runnable() {
+        writerThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!socket.isClosed()) {
+                while (!socket.isClosed() && !Thread.interrupted()) {
                     loginController = loader.getController();
                     if (loginController.buttonPressed.equals("Register")) {
                         if (loginController != null && !Objects.equals(loginController.getUserName(), "") && !Objects.equals(loginController.getPassword(), "")) {
@@ -188,6 +143,7 @@ public class Client extends Application {
                                 username = loginController.getUserName();
                                 loginController.setUserName("");
                                 loginController.setPassword("");
+                                loginController.setButtonPressed("");
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -201,6 +157,7 @@ public class Client extends Application {
                                 username = loginController.getUserName();
                                 loginController.setUserName("");
                                 loginController.setPassword("");
+                                loginController.setButtonPressed("");
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -221,6 +178,7 @@ public class Client extends Application {
     }
 
     protected void accessCatalogue(Set<Entry> books) {
+        writerThread.interrupt();
         Platform.runLater(() -> {
             try {
                 loader = new FXMLLoader(getClass().getResource("Catalogue.fxml"));
@@ -258,7 +216,7 @@ public class Client extends Application {
                     while (!socket.isClosed()) {
                         catalogueController = loader.getController();
                         if (catalogueController.buttonPressed.equals("CheckOut")) {
-                            if (catalogueController != null && catalogueController.getCheckOutList() != null) {
+                            if (catalogueController != null && catalogueController.getCheckOutList().length() != 0) {
                                 String message = "CHECKOUT:" + username + ":" + catalogueController.getCheckOutList();
                                 try {
                                     sendToServer(message);
