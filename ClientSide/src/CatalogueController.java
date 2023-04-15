@@ -351,4 +351,19 @@ public class CatalogueController implements Initializable {
         return checkOutListString.toString();
     }
 
+    public void checkoutComplete(){
+        //clear the cartlist and cartlisttocheckout
+        CartList.getItems().clear();
+        CartListToCheckOut.getItems().clear();
+        //put the main interface pane on top of the checkout pane
+        MainInterfacePane.getChildren().clear();
+        MainInterfacePane.getChildren().add(DashPane);
+        //alert the user that the checkout was successful
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Checkout Complete");
+        alert.setHeaderText("Checkout Complete");
+        alert.setContentText("Your items have been checked out");
+        alert.showAndWait();
+    }
+
 }

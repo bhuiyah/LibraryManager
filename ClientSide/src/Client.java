@@ -51,11 +51,6 @@ public class Client extends Application {
                 e.printStackTrace();
             }
         }
-//        System.out.println("Books received");
-//        for (Entry book : books) {
-//            System.out.println(book);
-//        }
-
         Thread readerThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -66,11 +61,12 @@ public class Client extends Application {
                         if(input.startsWith("REGISTERED")){
                             accessCatalogue(books);
                         }
-                        else if(input.startsWith("REGISTRATION INFORMATION")){
+                        else if(input.startsWith("REGISTRATION INFORMATION+")){
                             //input will have a "REGISTRATION INFORMATION" followed by a space and then the login info in the form of a json string
                             //get rid of REGISTRATION INFORMATION and grab the json string
-                            String[] tokens = input.split(" ");
-                            String json = tokens[2];
+                            //split input by + and grab the second part
+                            String[] tokens = input.split("\\+");
+                            String json = tokens[1];
                             Gson gson = new Gson();
                             loginInfo = gson.fromJson(json, LoginInfo.class);
                         }
@@ -82,11 +78,12 @@ public class Client extends Application {
                                 loginController.setRegisterError("Invalid username or password");
                             });
                         }
-                        else if(input.startsWith("LOGIN INFORMATION")){
+                        else if(input.startsWith("LOGIN INFORMATION+")){
                             //input will have a "LOGIN INFORMATION" followed by a space and then the login info in the form of a json string
                             //get rid of LOGIN INFORMATION and grab the json string
-                            String[] tokens = input.split(" ");
-                            String json = tokens[2];
+                            String[] tokens = input.split("\\+");
+                            String json = tokens[1];
+                            System.out.println(json);
                             Gson gson = new Gson();
                             loginInfo = gson.fromJson(json, LoginInfo.class);
                         }
@@ -110,19 +107,21 @@ public class Client extends Application {
                                 e.printStackTrace();
                             }
                         }
-                        else if(input.startsWith("CHECKED OUT")){
-                            try {
-                                Thread.sleep(1000);
-                                Entry[] bookArr = (Entry[]) new ObjectInputStream(socket.getInputStream()).readObject();
-                                books = new HashSet<>(Arrays.asList(bookArr));
-                                Platform.runLater(() -> {
-                                    catalogueController.setEntries(books);
-                                });
-                            } catch (EOFException e) {
-                                break;
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                        else if(input.startsWith("CHECKEDOUT+")) {
+                            String[] split = input.split("\\+");
+                            String lib = split[1];
+                            //convert books to a set of entries
+                            Gson gson = new Gson();
+                            Entry[] bookArr = gson.fromJson(lib, Entry[].class);
+                            books = new HashSet<>(Arrays.asList(bookArr));
+                            //update the catalogue
+                            Platform.runLater(() -> {
+                                catalogueController.setEntries(books);
+                                catalogueController.setLoginInfo(loginInfo);
+                                catalogueController.checkoutComplete();
+                                catalogueController.populateCurrentlyIssuedList();
+                            });
+
                         }
                     }
                 } catch (Exception e) {

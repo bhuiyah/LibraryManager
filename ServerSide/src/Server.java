@@ -64,7 +64,7 @@ class Server extends Observable {
         String json = gson.toJson(info);
         //add to loginInfo array
         loginInfo.add(info);
-        clientHandler.sendToClient("REGISTRATION INFORMATION " + json);
+        clientHandler.sendToClient("REGISTRATION INFORMATION+" + json);
         clientHandler.sendToClient("REGISTERED: " + username);
     }
 
@@ -77,7 +77,7 @@ class Server extends Observable {
                 Gson gson = new Gson();
                 String json = gson.toJson(login);
                 //add a code along with the json
-                clientHandler.sendToClient("LOGIN INFORMATION " + json);
+                clientHandler.sendToClient("LOGIN INFORMATION+" + json);
                 clientHandler.sendToClient("LOGGED IN: " + username);
                 return;
             }
@@ -102,11 +102,8 @@ class Server extends Observable {
             //split the item into name, issued date, and due date
             String[] itemInfo = item.split(",");
             //check if the book is in the database
-            boolean found = false;
             for (Entry book : books) {
-                if(found) break;
                 if (book.getTitle().equals(itemInfo[0])) {
-                    found = true;
                     //check if the book is available
                     if (book.getAvailable().equals("Yes")) {
                         //set the book to unavailable
@@ -120,8 +117,9 @@ class Server extends Observable {
                     }
                 }
             }
-            clientHandler.sendToClient("CHECKED OUT");
-            out.writeObject(books);
         }
+        Gson gson = new Gson();
+        String json = gson.toJson(books);
+        clientHandler.sendToClient("CHECKEDOUT+" + json);
     }
 }
