@@ -117,11 +117,30 @@ public class Client extends Application {
                             //update the catalogue
                             Platform.runLater(() -> {
                                 catalogueController.setEntries(books);
-                                catalogueController.setLoginInfo(loginInfo);
                                 catalogueController.checkoutComplete();
-                                catalogueController.populateCurrentlyIssuedList();
                             });
 
+                        }
+                        else if(input.startsWith("CHECKEDOUTUSERNAME+")){
+                            String[] split = input.split("\\+");
+                            String log = split[1];
+                            //convert log to a loginInfo object
+                            Gson gson = new Gson();
+                            loginInfo = gson.fromJson(log, LoginInfo.class);
+                            catalogueController.setLoginInfo(loginInfo);
+                            catalogueController.populateCurrentlyIssuedList();
+                        }
+                        else if(input.startsWith("UPDATELIBRARY+")){
+                            String[] split = input.split("\\+");
+                            String lib = split[1];
+                            //convert books to a set of entries
+                            Gson gson = new Gson();
+                            Entry[] bookArr = gson.fromJson(lib, Entry[].class);
+                            books = new HashSet<>(Arrays.asList(bookArr));
+                            //update the catalogue
+                            Platform.runLater(() -> {
+                                catalogueController.setEntries(books);
+                            });
                         }
                     }
                 } catch (Exception e) {
@@ -188,8 +207,6 @@ public class Client extends Application {
                 catalogueController.setTopBar();
                 catalogueController.setEntries(books);
                 catalogueController.setLoginInfo(loginInfo);
-                HashSet<LoginInfo.IssuedItem> issuedItems = new HashSet<>(loginInfo.getIssuedItems());
-                catalogueController.setHistory(issuedItems);
                 catalogueController.populateCurrentlyIssuedList();
                 scene = new Scene(root);
                 stage.setScene(scene);

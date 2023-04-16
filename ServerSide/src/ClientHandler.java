@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observer;
 import java.util.Observable;
+import com.google.gson.Gson;
 
 class ClientHandler implements Runnable, Observer {
 
@@ -97,6 +98,10 @@ class ClientHandler implements Runnable, Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    this.sendToClient((String) arg);
+    //arg is going to be Entry[] array, convert to gson string and send to client
+    Gson gson = new Gson();
+    String json = gson.toJson(arg);
+    sendToClient("UPDATELIBRARY+" + json);
+
   }
 }

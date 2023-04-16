@@ -16,7 +16,6 @@ public class CatalogueController implements Initializable {
 
     String UserName;
     Set<Entry> entries = new HashSet<>();
-    Set<LoginInfo.IssuedItem> history = new HashSet<>();
     LoginInfo loginInfo;
     ArrayList<LoginInfo.IssuedItem> checkOutList = new ArrayList<>();
     Client client;
@@ -82,6 +81,10 @@ public class CatalogueController implements Initializable {
     private Button FinalizeScreenDeleteButton;
     @FXML
     private TextFlow NoteAboutCheckingOut;
+    @FXML
+    private TableColumn<String, String> CountView;
+    @FXML
+    private TableColumn<String, String> TypeView;
 
 
     @Override
@@ -111,14 +114,13 @@ public class CatalogueController implements Initializable {
         //put dashboard pane on top of main interface pane
         MainInterfacePane.getChildren().clear();
         MainInterfacePane.getChildren().add(DashPane);
-        //populate the historyList with the user's history
         CurrentlyIssuedList.getItems().clear();
         populateCurrentlyIssuedList();
     }
 
     public void populateCurrentlyIssuedList(){
         CurrentlyIssuedList.getItems().clear();
-        for (LoginInfo.IssuedItem item : history){
+        for (LoginInfo.IssuedItem item : loginInfo.getIssuedItems()){
             CurrentlyIssuedList.getItems().add(item.getItem());
         }
     }
@@ -127,10 +129,6 @@ public class CatalogueController implements Initializable {
         System.out.println("Checkout Entry Button Pressed");
         //get all the items in the cart
         ObservableList<String> items = CartList.getItems();
-    }
-
-    public void setHistory(HashSet<LoginInfo.IssuedItem> history){
-        this.history = history;
     }
 
     public void setUserName(String UserName){
@@ -190,6 +188,8 @@ public class CatalogueController implements Initializable {
             AuthorView.setCellValueFactory(new PropertyValueFactory<>("author"));
             GenreView.setCellValueFactory(new PropertyValueFactory<>("genre"));
             CheckedOutView.setCellValueFactory(new PropertyValueFactory<>("available"));
+            CountView.setCellValueFactory(new PropertyValueFactory<>("count"));
+            TypeView.setCellValueFactory(new PropertyValueFactory<>("media_type"));
             //if the entry is available, set the color to green
             CheckedOutView.setCellFactory(column -> {
                 return new TableCell<Entry, String>() {
@@ -240,6 +240,8 @@ public class CatalogueController implements Initializable {
         AuthorView.setCellValueFactory(new PropertyValueFactory<>("author"));
         GenreView.setCellValueFactory(new PropertyValueFactory<>("genre"));
         CheckedOutView.setCellValueFactory(new PropertyValueFactory<>("available"));
+        CountView.setCellValueFactory(new PropertyValueFactory<>("count"));
+        TypeView.setCellValueFactory(new PropertyValueFactory<>("media_type"));
         //if the entry is available, set the color to green
         CheckedOutView.setCellFactory(column -> {
             return new TableCell<Entry, String>() {

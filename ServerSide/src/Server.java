@@ -8,7 +8,7 @@ import com.google.gson.GsonBuilder;
 
 class Server extends Observable {
     Entry[] books;
-    Set<LoginInfo> loginInfo;
+    HashMap<String, LoginInfo> loginInfo;
     int clientCounter = 0;
     Set<Socket> sockets;
     ObjectOutputStream out;
@@ -22,7 +22,10 @@ class Server extends Observable {
             books = gson.fromJson(new FileReader("src/Entries.json"), Entry[].class);
             //get the LoginInfo data from loginInfo.json and store it in loginInfo
             LoginInfo[] loginInfos = gson.fromJson(new FileReader("src/loginInfo.json"), LoginInfo[].class);
-            loginInfo = new HashSet(Arrays.asList(loginInfos));
+            loginInfo = new HashMap<>();
+            for (LoginInfo info : loginInfos) {
+                loginInfo.put(info.getUserName(), info);
+            }
             sockets = new HashSet<>();
             setUpNetworking();
 
@@ -54,16 +57,21 @@ class Server extends Observable {
         //make a new loginInfo object
         LoginInfo info = new LoginInfo(username, password, new ArrayList<>());
         //check if info is in database
-        for (LoginInfo login : loginInfo) {
-            if (login.getUserName().equals(username)) {
-                clientHandler.sendToClient("ALREADY REGISTERED " + username);
-                return;
-            }
+//        for (LoginInfo login : loginInfo) {
+//            if (login.getUserName().equals(username)) {
+//                clientHandler.sendToClient("ALREADY REGISTERED " + username);
+//                return;
+//            }
+//        }
+        //look through the hashmap to see if the username is already in use
+        if (loginInfo.containsKey(username)) {
+            clientHandler.sendToClient("ALREADY REGISTERED " + username);
+            return;
         }
         Gson gson = new Gson();
         String json = gson.toJson(info);
         //add to loginInfo array
-        loginInfo.add(info);
+        loginInfo.put(username, info);
         clientHandler.sendToClient("REGISTRATION INFORMATION+" + json);
         clientHandler.sendToClient("REGISTERED: " + username);
     }
@@ -71,11 +79,13 @@ class Server extends Observable {
     public void processLogin(String username, String password, ClientHandler clientHandler) {
         LoginInfo info = new LoginInfo(username, password, new ArrayList<>());
         //check if info is in database
-        for (LoginInfo login : loginInfo) {
-            if (login.getUserName().equals(username) && login.getPassword().equals(password)){
+        //look through the hashmap to see if the username is already in use
+        if (loginInfo.containsKey(username)) {
+            //check if the password is correct
+            if (loginInfo.get(username).getPassword().equals(password)) {
                 //send the login info to the client
                 Gson gson = new Gson();
-                String json = gson.toJson(login);
+                String json = gson.toJson(loginInfo.get(username));
                 //add a code along with the json
                 clientHandler.sendToClient("LOGIN INFORMATION+" + json);
                 clientHandler.sendToClient("LOGGED IN: " + username);
@@ -89,6 +99,8 @@ class Server extends Observable {
         clientCounter--;
         sockets.remove(clientHandler.getClientSocket());
         clientHandler.sendToClient("LOGOUT");
+        //remove the client from the observers
+        this.deleteObserver(clientHandler);
         clientHandler.getClientSocket().close();
     }
 
@@ -107,19 +119,27 @@ class Server extends Observable {
                     //check if the book is available
                     if (book.getAvailable().equals("Yes")) {
                         //set the book to unavailable
-                        book.setAvailable("No");
-                        //add the book to the user's issued items
-                        for (LoginInfo login : loginInfo) {
-                            if (login.getUserName().equals(username)) {
-                                login.getIssuedItems().add(new LoginInfo.IssuedItem(itemInfo[0], itemInfo[1], itemInfo[2]));
-                            }
+                        if(book.getCount() - 1 == 0) {
+                            book.setAvailable("No");
                         }
+                        book.setCount(book.getCount() - 1);
+                        loginInfo.get(username).getIssuedItems().add(new LoginInfo.IssuedItem(itemInfo[0], itemInfo[1], itemInfo[2]));
+                    } else {
+                        //send the book is not available message to the client
+                        clientHandler.sendToClient("BOOK NOT AVAILABLE: " + itemInfo[0]);
                     }
                 }
             }
         }
+        //send the updated books to the client
+        //get the loginInfo from the username passed in
         Gson gson = new Gson();
-        String json = gson.toJson(books);
+        String json = gson.toJson(loginInfo.get(username));
+        clientHandler.sendToClient("CHECKEDOUTUSERNAME+" + json);
+        json = gson.toJson(books);
         clientHandler.sendToClient("CHECKEDOUT+" + json);
+        //have all the clients update their books using Observable
+        setChanged();
+        notifyObservers(books);
     }
 }

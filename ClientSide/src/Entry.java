@@ -1,29 +1,29 @@
 import java.io.Serializable;
 
 public class Entry implements Serializable {
-  private String last_checked_out;
   private String title;
   private String genre;
   private String author;
   private String available;
   private String media_type;
+  private int count;
 
-  public Entry(String last_checked_out, String title, String genre, String author, String available, String media_type) {
-    this.last_checked_out = last_checked_out;
+  public Entry(String last_checked_out, String title, String genre, String author, String available, String media_type, int count) {
     this.title = title;
     this.genre = genre;
     this.author = author;
     this.available = available;
     this.media_type = media_type;
+    this.count = count;
   }
 
-  public String getLast_checked_out() {
-    return last_checked_out;
-  }
+    public int getCount() {
+        return count;
+    }
 
-  public void setLast_checked_out(String last_checked_out) {
-    this.last_checked_out = last_checked_out;
-  }
+    public void setCount(int count) {
+        this.count = count;
+    }
 
   public String getTitle() {
     return title;

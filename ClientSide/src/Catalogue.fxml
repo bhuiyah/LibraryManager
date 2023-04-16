@@ -39,43 +39,15 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.TextFlow?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="962.0" prefWidth="1223.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CatalogueController">
    <children>
-      <AnchorPane prefHeight="962.0" prefWidth="195.0">
+      <StackPane fx:id="MainInterfacePane" layoutY="161.0" prefHeight="801.0" prefWidth="1223.0">
          <children>
-            <Button fx:id="CheckOutButton" layoutX="18.0" layoutY="411.0" mnemonicParsing="false" onAction="#CheckoutButtonPressed" prefHeight="44.0" prefWidth="160.0" text="Browse" />
-            <Button layoutX="18.0" layoutY="481.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="160.0" text="Return" />
-            <Button layoutX="18.0" layoutY="556.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="160.0" text="Exit" />
-            <Button fx:id="DashButton" layoutX="18.0" layoutY="331.0" mnemonicParsing="false" onAction="#DashButtonPressed" prefHeight="44.0" prefWidth="160.0" text="Dashboard" />
-         </children>
-      </AnchorPane>
-      <StackPane fx:id="MainInterfacePane" layoutX="190.0" layoutY="86.0" prefHeight="877.0" prefWidth="1034.0">
-         <children>
-            <Pane fx:id="CheckOutPane" prefHeight="838.0" prefWidth="983.0">
-               <children>
-                  <Button fx:id="SearchButton" layoutX="745.0" layoutY="74.0" mnemonicParsing="false" onAction="#SearchButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Search" />
-                  <TextField fx:id="SearchBar" layoutY="72.0" prefHeight="29.0" prefWidth="730.0" />
-                  <Label layoutX="14.0" layoutY="27.0" prefHeight="37.0" prefWidth="703.0" text="Search for Title, Genre, Author " />
-                  <TableView fx:id="TableView" layoutY="122.0" onKeyPressed="#selectEntry" onMouseClicked="#selectEntry" prefHeight="337.0" prefWidth="943.0">
-                    <columns>
-                      <TableColumn fx:id="TitleView" prefWidth="340.0" text="Title" />
-                      <TableColumn fx:id="AuthorView" prefWidth="320.0" text="Author" />
-                        <TableColumn fx:id="GenreView" prefWidth="162.0" text="Genre" />
-                        <TableColumn fx:id="CheckedOutView" prefWidth="120.0" text="Available" />
-                    </columns>
-                  </TableView>
-                  <ListView fx:id="CartList" layoutY="496.0" onKeyPressed="#selectEntry" prefHeight="200.0" prefWidth="943.0" />
-                  <TextFlow fx:id="CartText" layoutX="14.0" layoutY="467.0" prefHeight="29.0" prefWidth="180.0" />
-                  <Button fx:id="CheckoutEntryButton" layoutX="764.0" layoutY="727.0" mnemonicParsing="false" onAction="#goToCheckout" prefHeight="61.0" prefWidth="138.0" text="CheckoutEntryButton" />
-                  <Button fx:id="ResetEntryButton" layoutX="53.0" layoutY="727.0" mnemonicParsing="false" onAction="#ResetEntryButtonPressed" prefHeight="61.0" prefWidth="160.0" text="Clear Cart" />
-                  <Button fx:id="DeleteEntryButton" layoutX="411.0" layoutY="727.0" mnemonicParsing="false" onAction="#DeleteEntryButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Delete Selected" />
-                  <Button fx:id="ResetSearch" layoutX="849.0" layoutY="74.0" mnemonicParsing="false" onAction="#ResetSearchPressed" prefHeight="25.0" prefWidth="88.0" text="Reset" />
-               </children>
-            </Pane>
             <Pane fx:id="DashPane" prefHeight="94.0" prefWidth="959.0">
                <children>
                   <AnchorPane layoutX="112.0" layoutY="132.0" prefHeight="225.0" prefWidth="262.0">
@@ -103,6 +75,10 @@
             </Pane>
             <Pane fx:id="FinalizeScreen" prefHeight="200.0" prefWidth="200.0">
                <children>
+                  <Button fx:id="BackButtonOnCheckOutScreen" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#BackButtonOnCheckoutPressed" prefHeight="37.0" prefWidth="125.0" text="&lt;--" />
+                  <Button fx:id="FinalizeCheckoutButton" layoutX="637.0" layoutY="714.0" mnemonicParsing="false" onAction="#FinalizeCheckOutButtonPressed" prefHeight="83.0" prefWidth="166.0" text="Finalize Checkout" />
+                  <Button fx:id="FinalizeScreenDeleteButton" layoutX="218.0" layoutY="714.0" mnemonicParsing="false" onAction="#FinalizeScreenDeleteButtonPressed" prefHeight="83.0" prefWidth="160.0" text="Delete Selected" />
+                  <TextFlow fx:id="NoteAboutCheckingOut" layoutX="65.0" layoutY="490.0" prefHeight="200.0" prefWidth="902.0" />
                   <TableView fx:id="CartListToCheckOut" layoutX="66.0" layoutY="78.0" prefHeight="397.0" prefWidth="902.0">
                     <columns>
                       <TableColumn fx:id="ItemOnFinalList" prefWidth="262.0" text="Item" />
@@ -110,18 +86,45 @@
                         <TableColumn fx:id="DueDateOnFinalList" prefWidth="308.0" text="Due Date" />
                     </columns>
                   </TableView>
-                  <Button fx:id="BackButtonOnCheckOutScreen" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#BackButtonOnCheckoutPressed" prefHeight="37.0" prefWidth="125.0" text="&lt;--" />
-                  <Button fx:id="FinalizeCheckoutButton" layoutX="637.0" layoutY="714.0" mnemonicParsing="false" onAction="#FinalizeCheckOutButtonPressed" prefHeight="83.0" prefWidth="166.0" text="Finalize Checkout" />
-                  <Button fx:id="FinalizeScreenDeleteButton" layoutX="218.0" layoutY="714.0" mnemonicParsing="false" onAction="#FinalizeScreenDeleteButtonPressed" prefHeight="83.0" prefWidth="160.0" text="Delete Selected" />
-                  <TextFlow fx:id="NoteAboutCheckingOut" layoutX="65.0" layoutY="490.0" prefHeight="200.0" prefWidth="902.0" />
+               </children>
+            </Pane>
+            <Pane fx:id="CheckOutPane" prefHeight="876.0" prefWidth="1034.0">
+               <children>
+                  <Button fx:id="SearchButton" layoutX="1004.0" layoutY="74.0" mnemonicParsing="false" onAction="#SearchButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Search" />
+                  <TextField fx:id="SearchBar" layoutX="15.0" layoutY="72.0" prefHeight="29.0" prefWidth="977.0" />
+                  <Label layoutX="16.0" layoutY="35.0" prefHeight="37.0" prefWidth="703.0" text="Search for Title, Genre, Author " />
+                  <TableView fx:id="TableView" layoutX="16.0" layoutY="122.0" onKeyPressed="#selectEntry" onMouseClicked="#selectEntry" prefHeight="337.0" prefWidth="1189.0">
+                    <columns>
+                      <TableColumn fx:id="TitleView" prefWidth="326.0" text="Title" />
+                      <TableColumn fx:id="AuthorView" prefWidth="310.0" text="Author" />
+                        <TableColumn fx:id="GenreView" prefWidth="236.0" text="Genre" />
+                        <TableColumn fx:id="CheckedOutView" prefWidth="104.0" text="Available" />
+                        <TableColumn fx:id="CountView" prefWidth="111.0" text="Count" />
+                        <TableColumn fx:id="TypeView" prefWidth="101.0" text="Type" />
+                    </columns>
+                  </TableView>
+                  <ListView fx:id="CartList" layoutX="16.0" layoutY="496.0" onKeyPressed="#selectEntry" prefHeight="200.0" prefWidth="1189.0" />
+                  <TextFlow fx:id="CartText" layoutX="14.0" layoutY="467.0" prefHeight="29.0" prefWidth="180.0" />
+                  <Button fx:id="CheckoutEntryButton" layoutX="1046.0" layoutY="716.0" mnemonicParsing="false" onAction="#goToCheckout" prefHeight="61.0" prefWidth="138.0" text="CheckoutEntryButton" />
+                  <Button fx:id="ResetEntryButton" layoutX="24.0" layoutY="716.0" mnemonicParsing="false" onAction="#ResetEntryButtonPressed" prefHeight="61.0" prefWidth="160.0" text="Clear Cart" />
+                  <Button fx:id="DeleteEntryButton" layoutX="536.0" layoutY="716.0" mnemonicParsing="false" onAction="#DeleteEntryButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Delete Selected" />
+                  <Button fx:id="ResetSearch" layoutX="1115.0" layoutY="74.0" mnemonicParsing="false" onAction="#ResetSearchPressed" prefHeight="25.0" prefWidth="88.0" text="Reset" />
                </children>
             </Pane>
          </children>
       </StackPane>
       <AnchorPane prefHeight="61.0" prefWidth="1223.0">
          <children>
-            <TextFlow fx:id="TopBar" layoutX="189.0" prefHeight="77.0" prefWidth="1034.0" />
+            <TextFlow fx:id="TopBar" layoutX="11.0" layoutY="15.0" prefHeight="37.0" prefWidth="1202.0" />
          </children>
       </AnchorPane>
+      <HBox layoutX="61.0" layoutY="100.0" prefHeight="61.0" prefWidth="1102.0" spacing="200.0">
+         <children>
+            <Button fx:id="DashButton" mnemonicParsing="false" onAction="#DashButtonPressed" prefHeight="44.0" prefWidth="125.0" text="Dashboard" />
+            <Button fx:id="CheckOutButton" mnemonicParsing="false" onAction="#CheckoutButtonPressed" prefHeight="44.0" prefWidth="125.0" text="Browse" />
+            <Button mnemonicParsing="false" prefHeight="44.0" prefWidth="125.0" text="Return" />
+            <Button mnemonicParsing="false" prefHeight="44.0" prefWidth="125.0" text="Exit" />
+         </children>
+      </HBox>
    </children>
 </AnchorPane>
