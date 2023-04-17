@@ -7,12 +7,16 @@
       {
         "item": "item1",
         "issuedDate": "2023-04-11",
-        "dueDate": "2023-04-18"
+        "dueDate": "2023-04-18",
+        "Late": "No",
+        "Fee": "$0"
       },
       {
         "item": "item2",
         "issuedDate": "2023-04-11",
-        "dueDate": "2023-04-18"
+        "dueDate": "2023-04-18",
+        "Late": "No",
+        "Fee": "$0"
       }
     ]
 },
@@ -23,7 +27,9 @@
       {
         "item": "item3",
         "issuedDate": "2023-04-11",
-        "dueDate": "2023-04-18"
+        "dueDate": "2023-04-18",
+        "Late": "No",
+        "Fee": "$0"
       }
     ]
   },

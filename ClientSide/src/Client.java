@@ -1,8 +1,11 @@
 import java.io.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.net.Socket;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -23,11 +26,13 @@ public class Client extends Application {
     public volatile CatalogueController catalogueController;
     private Thread writerThread;
     Socket socket;
-    Set<Entry> books;
+    HashMap<String, Entry> books;
     String username = "";
     LoginInfo loginInfo;
+    static Type type;
 
     public static void main(String[] args) {
+        type = new TypeToken<HashMap<String, Entry>>(){}.getType();
         launch(args);
     }
 
@@ -42,8 +47,7 @@ public class Client extends Application {
         fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         while(true) {
             try {
-                Entry[] bookArr = (Entry[]) new ObjectInputStream(socket.getInputStream()).readObject();
-                books = new HashSet<>(Arrays.asList(bookArr));
+                books = (HashMap<String, Entry>) new ObjectInputStream(socket.getInputStream()).readObject();
                 break;
             } catch (EOFException e) {
                 break;
@@ -112,14 +116,13 @@ public class Client extends Application {
                             String lib = split[1];
                             //convert books to a set of entries
                             Gson gson = new Gson();
-                            Entry[] bookArr = gson.fromJson(lib, Entry[].class);
-                            books = new HashSet<>(Arrays.asList(bookArr));
+                            //expecting Collections<Entry>
+                            books = gson.fromJson(lib, type);
                             //update the catalogue
                             Platform.runLater(() -> {
                                 catalogueController.setEntries(books);
                                 catalogueController.checkoutComplete();
                             });
-
                         }
                         else if(input.startsWith("CHECKEDOUTUSERNAME+")){
                             String[] split = input.split("\\+");
@@ -135,8 +138,10 @@ public class Client extends Application {
                             String lib = split[1];
                             //convert books to a set of entries
                             Gson gson = new Gson();
-                            Entry[] bookArr = gson.fromJson(lib, Entry[].class);
-                            books = new HashSet<>(Arrays.asList(bookArr));
+                            //expecting Collections<Entry>
+                            books = gson.fromJson(lib, type);
+
+                            //books should have all the keys of bookMap
                             //update the catalogue
                             Platform.runLater(() -> {
                                 catalogueController.setEntries(books);
@@ -195,7 +200,7 @@ public class Client extends Application {
         readerThread.start();
     }
 
-    protected void accessCatalogue(Set<Entry> books) {
+    protected void accessCatalogue(HashMap<String, Entry> books) {
         writerThread.interrupt();
         Platform.runLater(() -> {
             try {

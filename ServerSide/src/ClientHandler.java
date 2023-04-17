@@ -102,6 +102,5 @@ class ClientHandler implements Runnable, Observer {
     Gson gson = new Gson();
     String json = gson.toJson(arg);
     sendToClient("UPDATELIBRARY+" + json);
-
   }
 }

@@ -1,3 +1,4 @@
+import com.google.gson.internal.LinkedTreeMap;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -7,6 +8,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.TextFlow;
+
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 
 import java.net.URL;
@@ -15,7 +18,7 @@ import java.util.*;
 public class CatalogueController implements Initializable {
 
     String UserName;
-    Set<Entry> entries = new HashSet<>();
+    HashMap<String, Entry> entries;
     LoginInfo loginInfo;
     ArrayList<LoginInfo.IssuedItem> checkOutList = new ArrayList<>();
     Client client;
@@ -85,7 +88,32 @@ public class CatalogueController implements Initializable {
     private TableColumn<String, String> CountView;
     @FXML
     private TableColumn<String, String> TypeView;
-
+    @FXML
+    private Pane ReturnScreen;
+    @FXML
+    private TableView<LoginInfo.IssuedItem> ReturnView;
+    @FXML
+    private TableColumn<String, String> EntryTitleForReturnTable;
+    @FXML
+    private TableColumn<String, String> StartDateForReturnView;
+    @FXML
+    private TableColumn<String, String> DueDateReturnView;
+    @FXML
+    private TableColumn<String, String> LateForReturnView;
+    @FXML
+    private TableColumn<String, String> LateFeeView;
+    @FXML
+    private TextFlow ReturnText;
+    @FXML
+    private Button ResetButtonReturn;
+    @FXML
+    private Button ClearSelectedReturnButton;
+    @FXML
+    private Button FinalizeReturnButton;
+    @FXML
+    private Button ReturnButton;
+    @FXML
+    private ListView<String> ReturnCart;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -103,6 +131,14 @@ public class CatalogueController implements Initializable {
         CartText.getChildren().add(new javafx.scene.text.Text("Your Cart:"));
         CurrentlyIssuedLabel.getChildren().add(new javafx.scene.text.Text("Currently Checked Out:"));
         CartListToCheckOut.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        ReturnText.getChildren().add(new javafx.scene.text.Text("Items Returning:"));
+        ReturnCart.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        ReturnCart.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                String selectedItem = ReturnCart.getSelectionModel().getSelectedItem();
+                ReturnCart.getItems().remove(selectedItem);
+            }
+        });
     }
 
     public void setClient(Client client){
@@ -139,7 +175,8 @@ public class CatalogueController implements Initializable {
         TopBar.getChildren().add(new javafx.scene.text.Text("Welcome " + UserName));
     }
 
-    public void setEntries(Set<Entry> entries){
+    public void setEntries(HashMap<String, Entry> entries){
+        //iterate through the entries values, check if it is a LinkedTreeMap, and if it is, convert it to an Entry
         this.entries = entries;
         //update all the tableviews
         populateTableView();
@@ -173,7 +210,7 @@ public class CatalogueController implements Initializable {
             //create a new list to store the entries in
             List<Entry> entryList = new ArrayList<>();
             //loop through the entries
-            for(Entry entry : entries){
+            for(Entry entry : entries.values()){
                 //if the entry contains the search text, add it to the list
                 if(entry.getTitle().contains(SearchText) || entry.getAuthor().contains(SearchText) || entry.getGenre().contains(SearchText)){
                     entryList.add(entry);
@@ -223,19 +260,13 @@ public class CatalogueController implements Initializable {
 
 
     public void populateTableView(){
-        // Clear the existing items in the TableView
+        //the above code is not working for some reason, so I am using the code below
+        //get the entry values from the entries hashmap, and put them in the tableview
         TableView.getItems().clear();
-
-        // Create a new list to store the entries in
-        List<Entry> entryList = new ArrayList<>(entries);
-
-        // Create ObservableList from the entryList
-        ObservableList<Entry> data = FXCollections.observableArrayList(entryList);
-
-        // Set the items of the TableView to the ObservableList
-        TableView.setItems(data);
-
-        // Set the cell value factories for each of the columns
+        for(Entry entry : entries.values()){
+            TableView.getItems().add(entry);
+        }
+        //set the cell value factories for each of the columns
         TitleView.setCellValueFactory(new PropertyValueFactory<>("title"));
         AuthorView.setCellValueFactory(new PropertyValueFactory<>("author"));
         GenreView.setCellValueFactory(new PropertyValueFactory<>("genre"));
@@ -288,11 +319,27 @@ public class CatalogueController implements Initializable {
     public void goToCheckout(){
         //put checkout pane on top of main interface pane
         if(CartList.getItems().size() > 0){
-            MainInterfacePane.getChildren().clear();
-            MainInterfacePane.getChildren().add(FinalizeScreen);
-            //put all the cartlist items into the cartlisttocheckout
-            CartListToCheckOut.getItems().clear();
-            populateCartListToCheckOut();
+            if(CartList.getItems().size() > 5){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("You have already issued 5 items");
+                alert.setContentText("Please return an item before checking out another one");
+                alert.showAndWait();
+            }
+            //check issuedItems + cartList size
+            else if(loginInfo.getIssuedItems().size() + CartList.getItems().size() > 5){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("You can only issue 5 items at a time");
+                alert.setContentText("Please return an item before checking out another one");
+                alert.showAndWait();
+            }else {
+                MainInterfacePane.getChildren().clear();
+                MainInterfacePane.getChildren().add(FinalizeScreen);
+                //put all the cartlist items into the cartlisttocheckout
+                CartListToCheckOut.getItems().clear();
+                populateCartListToCheckOut();
+            }
         }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -366,6 +413,93 @@ public class CatalogueController implements Initializable {
         alert.setHeaderText("Checkout Complete");
         alert.setContentText("Your items have been checked out");
         alert.showAndWait();
+    }
+
+    public void ReturnButtonPressed(){
+        //put the return pane on top of the main interface pane
+        MainInterfacePane.getChildren().clear();
+        MainInterfacePane.getChildren().add(ReturnScreen);
+        //populate the tableview with the current user's issued items
+        populateReturnList();
+    }
+
+    public void populateReturnList(){
+        //populate the tableview with the current user's issued items
+        ReturnView.getItems().clear();
+        //make loginInfo.getIssuedItems() into an ObservableList
+        ObservableList<LoginInfo.IssuedItem> data = FXCollections.observableArrayList();
+        data.addAll(loginInfo.getIssuedItems());
+        ReturnView.getItems().addAll(data);
+        //set each column of ItemOnReturnList to each item in the cartlist
+        EntryTitleForReturnTable.setCellValueFactory(new PropertyValueFactory<>("item"));
+        //set each column of StartDateOnReturnList to the current date using LocalDate.now()
+        StartDateForReturnView.setCellValueFactory(new PropertyValueFactory<>("issuedDate"));
+        //set each column of  to the current date + 14 days
+        DueDateReturnView.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
+        LateForReturnView.setCellValueFactory(new PropertyValueFactory<>("Late"));
+        //if Yes, set the text to red, if No, set the text to green
+        LateForReturnView.setCellFactory(column -> {
+            return new TableCell<String, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                        if (item.equals("Yes")) {
+                            setStyle("-fx-text-fill: red;");
+                        } else {
+                            setStyle("-fx-text-fill: green;");
+                        }
+                    }
+                }
+            };
+        });
+        LateFeeView.setCellValueFactory(new PropertyValueFactory<>("Fee"));
+        //if the late fee is greater than 0, set the text to red, if it is 0, set the text to green
+        //Fee is in the form of a string, so we have to convert it to a double: $0
+        LateFeeView.setCellFactory(column -> {
+            return new TableCell<String, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                        if (Double.parseDouble(item.substring(1)) > 0) {
+                            setStyle("-fx-text-fill: red;");
+                        } else {
+                            setStyle("-fx-text-fill: green;");
+                        }
+                    }
+                }
+            };
+        });
+    }
+
+    public void ReturnCartSelected(){
+        //add the selected items from the ReturnView to the ReturnCart. only get their titles
+        ObservableList<LoginInfo.IssuedItem> selectedItems = ReturnView.getSelectionModel().getSelectedItems();
+        for(LoginInfo.IssuedItem item : selectedItems){
+            ReturnCart.getItems().add(item.getItem());
+        }
+    }
+
+    public void ClearSelectedReturnButtonPressed(){
+        //remove all the selected items from the ReturnCart
+        ObservableList<String> selectedItems = ReturnCart.getSelectionModel().getSelectedItems();
+        ReturnCart.getItems().removeAll(selectedItems);
+    }
+
+    public void ResetButtonReturnPressed(){
+        //clear the ReturnCart
+        ReturnCart.getItems().clear();
     }
 
 }

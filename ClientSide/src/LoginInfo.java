@@ -12,6 +12,7 @@ public class LoginInfo implements Serializable {
         UserName = userName;
         Password = password;
         this.issuedItems = issuedItems;
+
     }
 
     public String getUserName() {
@@ -50,11 +51,15 @@ public class LoginInfo implements Serializable {
         private String item;
         private String issuedDate;
         private String dueDate;
+        private String Late;
+        private String Fee;
 
         public IssuedItem(String item, String issuedDate, String dueDate) {
             this.item = item;
             this.issuedDate = issuedDate;
             this.dueDate = dueDate;
+            this.Late = "No";
+            this.Fee = "$0";
         }
 
         public String getItem() {
@@ -79,6 +84,22 @@ public class LoginInfo implements Serializable {
 
         public void setDueDate(String dueDate) {
             this.dueDate = dueDate;
+        }
+
+        public String getLate() {
+            return Late;
+        }
+
+        public void setLate(String Late) {
+            this.Late = Late;
+        }
+
+        public String getFee() {
+            return Fee;
+        }
+
+        public void setFee(String Fee) {
+            this.Fee = Fee;
         }
     }
 }

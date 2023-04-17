@@ -2,6 +2,7 @@
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
@@ -18,7 +19,7 @@ public class LoginController implements Initializable {
     @FXML
     private TextField UserTextField;
     @FXML
-    private TextField PassTextField;
+    private PasswordField PassTextField;
     @FXML
     private Button RegisterButton;
     @FXML

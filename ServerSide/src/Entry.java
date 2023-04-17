@@ -8,7 +8,7 @@ public class Entry implements Serializable {
     private String media_type;
     private int count;
 
-    public Entry(String last_checked_out, String title, String genre, String author, String available, String media_type, int count) {
+    public Entry(String title, String genre, String author, String available, String media_type, int count) {
         this.title = title;
         this.genre = genre;
         this.author = author;

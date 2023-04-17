@@ -12,6 +12,7 @@ public class LoginInfo implements Serializable {
         UserName = userName;
         Password = password;
         this.issuedItems = issuedItems;
+
     }
 
     public String getUserName() {
@@ -50,11 +51,22 @@ public class LoginInfo implements Serializable {
         private String item;
         private String issuedDate;
         private String dueDate;
+        private String Late;
+        private String Fee;
 
         public IssuedItem(String item, String issuedDate, String dueDate) {
             this.item = item;
             this.issuedDate = issuedDate;
             this.dueDate = dueDate;
+            this.Late = "No";
+            this.Fee = "$0";
+        }
+
+        //toString
+        //item,issuedDate,dueDate,Late,Fee
+        @Override
+        public String toString() {
+            return item + "," + issuedDate + "," + dueDate + "," + Late + "," + Fee;
         }
 
         public String getItem() {
@@ -81,9 +93,23 @@ public class LoginInfo implements Serializable {
             this.dueDate = dueDate;
         }
 
-        public String toString(){
-            //The Catcher in the Rye,2023-04-14,2023-04-28
-            return item + "," + issuedDate + "," + dueDate;
+        public String getLate() {
+            return Late;
         }
+
+        public void setLate(String Late) {
+            this.Late = Late;
+        }
+
+        public String getFee() {
+            return Fee;
+        }
+
+        public void setFee(String Fee) {
+            this.Fee = Fee;
+        }
+
+        //toString
+
     }
 }
