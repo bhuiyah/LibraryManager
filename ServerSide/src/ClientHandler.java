@@ -86,6 +86,31 @@ class ClientHandler implements Runnable, Observer {
             //send the username and the IssuedItem object to the server
             server.processCheckout(username, String.valueOf(sb), this);
         }
+        if(input.startsWith("RETURN")){
+          //RETURN:user1:1984,2023-04-14,2023-04-28;The Catcher in the Rye,2023-04-14,2023-04-28; this is the format of the string
+          //split the string by the semicolon
+          String[] tokens = input.split(":");
+          //get the username
+          String username = tokens[1];
+          //get the books
+          String books = tokens[2];
+          //split the books by the comma
+          //change each book into a IssuedItem object
+          ArrayList<LoginInfo.IssuedItem> issuedItems = new ArrayList<>();
+          for(String book : books.split(";")){
+            //split each book by the comma
+            String[] bookInfo = book.split(",");
+            //create a new IssuedItem object
+            LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
+            issuedItems.add(item);
+          }
+          StringBuilder sb = new StringBuilder();
+          for(LoginInfo.IssuedItem item : issuedItems){
+            sb.append(item.toString() + ";");
+          }
+          //send the username and the IssuedItem object to the server
+          server.processReturn(username, String.valueOf(sb), this);
+        }
       }
     } catch (IOException e) {
       e.printStackTrace();

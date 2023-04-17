@@ -62,10 +62,9 @@ public class Client extends Application {
                 try {
                     while (!socket.isClosed() && (input = fromServer.readLine()) != null) {
                         System.out.println("From server: " + input);
-                        if(input.startsWith("REGISTERED")){
+                        if (input.startsWith("REGISTERED")) {
                             accessCatalogue(books);
-                        }
-                        else if(input.startsWith("REGISTRATION INFORMATION+")){
+                        } else if (input.startsWith("REGISTRATION INFORMATION+")) {
                             //input will have a "REGISTRATION INFORMATION" followed by a space and then the login info in the form of a json string
                             //get rid of REGISTRATION INFORMATION and grab the json string
                             //split input by + and grab the second part
@@ -73,16 +72,13 @@ public class Client extends Application {
                             String json = tokens[1];
                             Gson gson = new Gson();
                             loginInfo = gson.fromJson(json, LoginInfo.class);
-                        }
-                        else if(input.startsWith("LOGGED IN")){
+                        } else if (input.startsWith("LOGGED IN")) {
                             accessCatalogue(books);
-                        }
-                        else if(input.startsWith("INVALID LOGIN")){
+                        } else if (input.startsWith("INVALID LOGIN")) {
                             Platform.runLater(() -> {
                                 loginController.setRegisterError("Invalid username or password");
                             });
-                        }
-                        else if(input.startsWith("LOGIN INFORMATION+")){
+                        } else if (input.startsWith("LOGIN INFORMATION+")) {
                             //input will have a "LOGIN INFORMATION" followed by a space and then the login info in the form of a json string
                             //get rid of LOGIN INFORMATION and grab the json string
                             String[] tokens = input.split("\\+");
@@ -94,7 +90,7 @@ public class Client extends Application {
 //                        else if(input.startsWith("INVALID REGISTER")){
 //                            loginController.setRegisterError("Invalid Register");
 //                        }
-                        else if(input.startsWith("ALREADY REGISTERED")){
+                        else if (input.startsWith("ALREADY REGISTERED")) {
                             Platform.runLater(() -> {
                                 loginController.setRegisterError("Already Registered");
                             });
@@ -102,16 +98,18 @@ public class Client extends Application {
 //                        else if(input.startsWith("ALREADY LOGGED IN")){
 //                            loginController.setLoginError("Already Logged In");
 //                        }
-                        else if(input.startsWith("LOGOUT")){
-                            try{
+                        else if (input.startsWith("LOGOUT")) {
+                            try {
+                                //close the gui
+                                Platform.runLater(() -> {
+                                    stage.close();
+                                });
                                 socket.close();
                                 break;
-                            }
-                            catch (IOException e){
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                        }
-                        else if(input.startsWith("CHECKEDOUT+")) {
+                        } else if (input.startsWith("CHECKEDOUT+")) {
                             String[] split = input.split("\\+");
                             String lib = split[1];
                             //convert books to a set of entries
@@ -123,8 +121,7 @@ public class Client extends Application {
                                 catalogueController.setEntries(books);
                                 catalogueController.checkoutComplete();
                             });
-                        }
-                        else if(input.startsWith("CHECKEDOUTUSERNAME+")){
+                        } else if (input.startsWith("CHECKEDOUTUSERNAME+")) {
                             String[] split = input.split("\\+");
                             String log = split[1];
                             //convert log to a loginInfo object
@@ -132,8 +129,7 @@ public class Client extends Application {
                             loginInfo = gson.fromJson(log, LoginInfo.class);
                             catalogueController.setLoginInfo(loginInfo);
                             catalogueController.populateCurrentlyIssuedList();
-                        }
-                        else if(input.startsWith("UPDATELIBRARY+")){
+                        } else if (input.startsWith("UPDATELIBRARY+")) {
                             String[] split = input.split("\\+");
                             String lib = split[1];
                             //convert books to a set of entries
@@ -146,6 +142,26 @@ public class Client extends Application {
                             Platform.runLater(() -> {
                                 catalogueController.setEntries(books);
                             });
+                        } else if (input.startsWith("RETURNEDUSERNAME+")) {
+                            String[] split = input.split("\\+");
+                            String log = split[1];
+                            //convert log to a loginInfo object
+                            Gson gson = new Gson();
+                            loginInfo = gson.fromJson(log, LoginInfo.class);
+                            catalogueController.setLoginInfo(loginInfo);
+                            catalogueController.populateCurrentlyIssuedList();
+                        } else if (input.startsWith("RETURNED+")) {
+                            String[] split = input.split("\\+");
+                            String lib = split[1];
+                            //convert books to a set of entries
+                            Gson gson = new Gson();
+                            //expecting Collections<Entry>
+                            books = gson.fromJson(lib, type);
+                            //update the catalogue
+                            Platform.runLater(() -> {
+                                catalogueController.setEntries(books);
+                                catalogueController.returnComplete();
+                            });
                         }
                     }
                 } catch (Exception e) {
@@ -156,6 +172,13 @@ public class Client extends Application {
         writerThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                stage.setOnCloseRequest(EventListener -> {
+                    try {
+                        sendToServer("LOGOUT");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
                 while (!socket.isClosed() && !Thread.interrupted()) {
                     loginController = loader.getController();
                     if (loginController.buttonPressed.equals("Register")) {
@@ -187,13 +210,6 @@ public class Client extends Application {
                         }
                     }
                 }
-                stage.setOnCloseRequest(EventListener -> {
-                    try {
-                        sendToServer("LOGOUT");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
             }
         });
         writerThread.start();
@@ -245,6 +261,24 @@ public class Client extends Application {
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
+                            }
+                        }
+                        else if(catalogueController.buttonPressed.equals("Return")){
+                            if (catalogueController != null && catalogueController.getReturnList().length() != 0) {
+                                String message = "RETURN:" + username + ":" + catalogueController.getReturnList();
+                                try {
+                                    sendToServer(message);
+                                    catalogueController.setReturnList(new ArrayList<>());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                        else if(catalogueController.buttonPressed.equals("Exit")){
+                            try {
+                                sendToServer("LOGOUT");
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
                         }
                     }

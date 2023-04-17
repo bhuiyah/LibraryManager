@@ -156,4 +156,38 @@ class Server extends Observable {
         setChanged();
         notifyObservers(books);
     }
+
+    public void processReturn(String username, String issuedItem, ClientHandler clientHandler ){
+        String[] items = issuedItem.split(";");
+        //loop through the items
+        for (String item : items) {
+            //split the item into name, issued date, and due date
+            String[] itemInfo = item.split(",");
+            //check if the book is in the database
+            if (books.containsKey(itemInfo[0])) {
+                //set the book to available
+                books.get(itemInfo[0]).setAvailable("Yes");
+                books.get(itemInfo[0]).setCount(books.get(itemInfo[0]).getCount() + 1);
+                //remove the book from the issued items
+//                for (LoginInfo.IssuedItem issued : loginInfo.get(username).getIssuedItems()) {
+//                    if (issued.getItem().equals(itemInfo[0])) {
+//                        loginInfo.get(username).getIssuedItems().remove(issued);
+//                    }
+//                }
+                loginInfo.get(username).getIssuedItems().removeIf(issued -> issued.getItem().equals(itemInfo[0]));
+            }
+        }
+        //send the updated books to the client
+        //get the loginInfo from the username passed in
+        Gson gson = new Gson();
+        String json = gson.toJson(loginInfo.get(username));
+        clientHandler.sendToClient("RETURNEDUSERNAME+" + json);
+        json = gson.toJson(books);
+        clientHandler.sendToClient("RETURNED+" + json);
+        //have all the clients update their books using Observable
+        setChanged();
+        notifyObservers(books);
+
+    }
+
 }

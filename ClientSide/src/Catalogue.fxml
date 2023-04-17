@@ -122,11 +122,16 @@
                         <TableColumn fx:id="LateFeeView" prefWidth="110.0" text="Fee" />
                     </columns>
                   </TableView>
-                  <ListView fx:id="ReturnCart" layoutX="123.0" layoutY="487.0" prefHeight="200.0" prefWidth="977.0" />
                   <TextFlow fx:id="ReturnText" layoutX="123.0" layoutY="440.0" prefHeight="29.0" prefWidth="977.0" />
-                  <Button fx:id="FinalizeReturnButton" layoutX="948.0" layoutY="750.0" mnemonicParsing="false" prefHeight="61.0" prefWidth="152.0" text="Confirm Return" />
+                  <Button fx:id="FinalizeReturnButton" layoutX="948.0" layoutY="750.0" mnemonicParsing="false" onAction="#FinalizeReturnButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Confirm Return" />
                   <Button fx:id="ClearSelectedReturnButton" layoutX="536.0" layoutY="750.0" mnemonicParsing="false" onAction="#ClearSelectedReturnButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Clear Selected" />
                   <Button fx:id="ResetButtonReturn" layoutX="123.0" layoutY="750.0" mnemonicParsing="false" onAction="#ResetButtonReturnPressed" prefHeight="61.0" prefWidth="152.0" text="Reset" />
+                  <TableView fx:id="ReturnCart" layoutX="123.0" layoutY="469.0" prefHeight="219.0" prefWidth="977.0">
+                    <columns>
+                      <TableColumn fx:id="TitleReturnCart" prefWidth="491.0" text="Title" />
+                      <TableColumn fx:id="FeeReturnCart" prefWidth="485.0" text="Fee" />
+                    </columns>
+                  </TableView>
                </children>
             </Pane>
          </children>
@@ -141,7 +146,7 @@
             <Button fx:id="DashButton" mnemonicParsing="false" onAction="#DashButtonPressed" prefHeight="44.0" prefWidth="125.0" text="Dashboard" />
             <Button fx:id="CheckOutButton" mnemonicParsing="false" onAction="#CheckoutButtonPressed" prefHeight="44.0" prefWidth="125.0" text="Browse" />
             <Button fx:id="ReturnButton" mnemonicParsing="false" onAction="#ReturnButtonPressed" prefHeight="44.0" prefWidth="125.0" text="Return" />
-            <Button mnemonicParsing="false" prefHeight="44.0" prefWidth="125.0" text="Exit" />
+            <Button fx:id="ExitButton" mnemonicParsing="false" onAction="#ExitButtonPressed" prefHeight="44.0" prefWidth="125.0" text="Exit" />
          </children>
       </HBox>
    </children>

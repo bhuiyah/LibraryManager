@@ -23,6 +23,7 @@ public class CatalogueController implements Initializable {
     ArrayList<LoginInfo.IssuedItem> checkOutList = new ArrayList<>();
     Client client;
     String buttonPressed = "";
+    ArrayList<LoginInfo.IssuedItem> returnList = new ArrayList<>();
 
     @FXML
     private TextFlow TopBar;
@@ -113,8 +114,11 @@ public class CatalogueController implements Initializable {
     @FXML
     private Button ReturnButton;
     @FXML
-    private ListView<String> ReturnCart;
-
+    private TableView<LoginInfo.IssuedItem> ReturnCart;
+    @FXML
+    private TableColumn<String, String> TitleReturnCart;
+    @FXML
+    private TableColumn<String, String> FeeReturnCart;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Catalogue Controller Initialized");
@@ -135,10 +139,27 @@ public class CatalogueController implements Initializable {
         ReturnCart.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ReturnCart.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
-                String selectedItem = ReturnCart.getSelectionModel().getSelectedItem();
+                LoginInfo.IssuedItem selectedItem = ReturnCart.getSelectionModel().getSelectedItem();
                 ReturnCart.getItems().remove(selectedItem);
             }
         });
+        //set all table columns to the center
+        TitleView.setStyle("-fx-alignment: CENTER;");
+        AuthorView.setStyle("-fx-alignment: CENTER;");
+        GenreView.setStyle("-fx-alignment: CENTER;");
+        CheckedOutView.setStyle("-fx-alignment: CENTER;");
+        CountView.setStyle("-fx-alignment: CENTER;");
+        TypeView.setStyle("-fx-alignment: CENTER;");
+        ItemOnFinalList.setStyle("-fx-alignment: CENTER;");
+        DueDateOnFinalList.setStyle("-fx-alignment: CENTER;");
+        StartDateOnFinalList.setStyle("-fx-alignment: CENTER;");
+        EntryTitleForReturnTable.setStyle("-fx-alignment: CENTER;");
+        StartDateForReturnView.setStyle("-fx-alignment: CENTER;");
+        DueDateReturnView.setStyle("-fx-alignment: CENTER;");
+        LateForReturnView.setStyle("-fx-alignment: CENTER;");
+        LateFeeView.setStyle("-fx-alignment: CENTER;");
+        TitleReturnCart.setStyle("-fx-alignment: CENTER;");
+        FeeReturnCart.setStyle("-fx-alignment: CENTER;");
     }
 
     public void setClient(Client client){
@@ -487,19 +508,62 @@ public class CatalogueController implements Initializable {
         //add the selected items from the ReturnView to the ReturnCart. only get their titles
         ObservableList<LoginInfo.IssuedItem> selectedItems = ReturnView.getSelectionModel().getSelectedItems();
         for(LoginInfo.IssuedItem item : selectedItems){
-            ReturnCart.getItems().add(item.getItem());
+            ReturnCart.getItems().add(item);
         }
+        //cellfactory for the ReturnCart
+        TitleReturnCart.setCellValueFactory(new PropertyValueFactory<>("item"));
+        //set each column of FeeReturnCart to the late fee of the item
+        FeeReturnCart.setCellValueFactory(new PropertyValueFactory<>("Fee"));
     }
 
     public void ClearSelectedReturnButtonPressed(){
         //remove all the selected items from the ReturnCart
-        ObservableList<String> selectedItems = ReturnCart.getSelectionModel().getSelectedItems();
+        ObservableList<LoginInfo.IssuedItem> selectedItems = ReturnCart.getSelectionModel().getSelectedItems();
         ReturnCart.getItems().removeAll(selectedItems);
     }
 
     public void ResetButtonReturnPressed(){
         //clear the ReturnCart
         ReturnCart.getItems().clear();
+    }
+
+    public void FinalizeReturnButtonPressed(){
+        //make each entry in the ReturnCart an IssuedItem and add it to the current user's issued items
+        returnList.addAll(ReturnCart.getItems());
+        buttonPressed = "Return";
+    }
+
+    public void setReturnList(ArrayList<LoginInfo.IssuedItem> returnList){
+        this.returnList = returnList;
+    }
+
+    public String getReturnList(){
+        //return the returnList as a string that can be turned into a ArrayList<LoginInfo.IssuedItem> later
+        StringBuilder returnListString = new StringBuilder();
+        for(LoginInfo.IssuedItem item : returnList){
+            returnListString.append(item.getItem()).append(",").append(item.getIssuedDate()).append(",").append(item.getDueDate()).append(";");
+        }
+        return returnListString.toString();
+    }
+
+    public void returnComplete(){
+        //clear the ReturnCart and ReturnView
+        ReturnCart.getItems().clear();
+        ReturnView.getItems().clear();
+        //put the main interface pane on top of the return pane
+        MainInterfacePane.getChildren().clear();
+        MainInterfacePane.getChildren().add(DashPane);
+        //alert the user that the return was successful
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Return Complete");
+        alert.setHeaderText("Return Complete");
+        alert.setContentText("Your items have been returned");
+        alert.showAndWait();
+    }
+
+    public void ExitButtonPressed(){
+        //exit the program
+        buttonPressed = "Exit";
     }
 
 }
