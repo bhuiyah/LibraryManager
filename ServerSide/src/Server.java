@@ -1,4 +1,5 @@
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -6,31 +7,79 @@ import java.time.LocalDate;
 //import gson
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoException;
+import com.mongodb.ServerApi;
+import com.mongodb.ServerApiVersion;
+import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import com.sun.xml.internal.bind.v2.util.TypeCast;
+import org.bson.*;
+import org.bson.conversions.Bson;
 
 class Server extends Observable {
-    HashMap<String, Entry> books;
-    HashMap<String, LoginInfo> loginInfo;
+    static HashMap<String, Entry> books;
+    static HashMap<String, LoginInfo> loginInfo;
     int clientCounter = 0;
     Set<Socket> sockets;
     ObjectOutputStream out;
+    static MongoDatabase database;
+    static Type type;
+    MongoClient mongoClient;
+
     public static void main(String[] args) {
+        books = new HashMap<>();
+        loginInfo = new HashMap<>();
         new Server().runServer();
+        type = new TypeToken<HashMap<String, LoginInfo>>(){}.getType();
     }
 
     private void runServer() {
         try {
-            Gson gson = new Gson();
-//            books = gson.fromJson(new FileReader("src/Entries.json"), Entry[].class);
-            //get the Entry data from Entries.json and store it in books
-            Entry[] entries = gson.fromJson(new FileReader("src/Entries.json"), Entry[].class);
-            books = new HashMap<>();
-            for (Entry entry : entries) {
-                books.put(entry.getTitle(), entry);
+            sockets = new HashSet<>();
+            String connectionString = "mongodb+srv://bhuiyansajid8:AcNBnJPLeQ6Cg8mm@finalproject.hd3t08o.mongodb.net/?retryWrites=true&w=majority";
+            ServerApi serverApi = ServerApi.builder()
+                    .version(ServerApiVersion.V1)
+                    .build();
+            MongoClientSettings settings = MongoClientSettings.builder()
+                    .applyConnectionString(new ConnectionString(connectionString))
+                    .retryWrites(true)
+                    .serverApi(serverApi)
+                    .build();
+            // Create a new client and connect to the server
+            mongoClient = MongoClients.create(settings);
+            database = mongoClient.getDatabase("Library");
+            MongoCollection<Document> collection = database.getCollection("Entries");
+            MongoCursor<Document> cursor = collection.find().iterator();
+            try {
+                while (cursor.hasNext()) {
+                    //convert each document to json string
+                    String json = cursor.next().toJson();
+                    //convert json string to Entry object
+                    Entry entry = new Gson().fromJson(json, Entry.class);
+                    //add the entry to the hashmap
+                    books.put(entry.getTitle(), entry);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            //get the LoginInfo data from loginInfo.json and store it in loginInfo
-            LoginInfo[] loginInfos = gson.fromJson(new FileReader("src/loginInfo.json"), LoginInfo[].class);
-            //iterate through loginInfos array and update Late and Fee
-            for (LoginInfo info : loginInfos) {
+            MongoCollection<Document> collection1 = database.getCollection("LoginInfo");
+            MongoCursor<Document> cursor1 = collection1.find().iterator();
+            try {
+                while (cursor1.hasNext()) {
+                    //convert each document to json string
+                    String json = cursor1.next().toJson();
+                    //convert json string to LoginInfo object
+                    LoginInfo info = new Gson().fromJson(json, LoginInfo.class);
+                    //add the entry to the hashmap
+                    loginInfo.put(info.getUserName(), info);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (LoginInfo info : loginInfo.values()) {
                 for (LoginInfo.IssuedItem item : info.getIssuedItems()) {
                     LocalDate dueDate = LocalDate.parse(item.getDueDate());
                     LocalDate today = LocalDate.now();
@@ -45,36 +94,42 @@ class Server extends Observable {
                     }
                 }
             }
-            loginInfo = new HashMap<>();
-            for (LoginInfo info : loginInfos) {
-                loginInfo.put(info.getUserName(), info);
+            MongoCollection<Document> collection2 = database.getCollection("LoginInfo");
+            for (LoginInfo info : loginInfo.values()) {
+                ArrayList<Document> items = new ArrayList<>();
+                for (LoginInfo.IssuedItem item : info.getIssuedItems()) {
+                    items.add(new Document("item", item.getItem()).append("issuedDate", item.getIssuedDate()).append("dueDate", item.getDueDate()).append("Late", item.getLate()).append("Fee", item.getFee()));
+                }
+                collection2.updateOne(Filters.eq("UserName", info.getUserName()), new Document("$set", new Document("issuedItems", items)));
             }
-            sockets = new HashSet<>();
-            setUpNetworking();
 
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try{
+            setUpNetworking();
+        } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
-    private void setUpNetworking() throws Exception {
-        @SuppressWarnings("resource")
-        ServerSocket serverSock = new ServerSocket(4242);
-        while (true) {
-            Socket clientSocket = serverSock.accept();
-            System.out.println("Connecting to... " + clientSocket);
-            clientCounter++;
-            sockets.add(clientSocket);
-            ClientHandler handler = new ClientHandler(this, clientSocket);
-            this.addObserver(handler);
-            out = new ObjectOutputStream(clientSocket.getOutputStream());
-            //send books to client
-            out.writeObject((books));
-            Thread t = new Thread(handler);
-            t.start();
+        private void setUpNetworking () throws Exception {
+            @SuppressWarnings("resource")
+            ServerSocket serverSock = new ServerSocket(4242);
+            while (true) {
+                Socket clientSocket = serverSock.accept();
+                System.out.println("Connecting to... " + clientSocket);
+                clientCounter++;
+                sockets.add(clientSocket);
+                ClientHandler handler = new ClientHandler(this, clientSocket);
+                this.addObserver(handler);
+                out = new ObjectOutputStream(clientSocket.getOutputStream());
+                //send books to client
+                out.writeObject((books));
+                Thread t = new Thread(handler);
+                t.start();
+            }
         }
-    }
 
     public void processRegistration(String username, String password, ClientHandler clientHandler) {
         //make a new loginInfo object
