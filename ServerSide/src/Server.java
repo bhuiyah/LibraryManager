@@ -22,16 +22,21 @@ import org.bson.conversions.Bson;
 class Server extends Observable {
     static HashMap<String, Entry> books;
     static HashMap<String, LoginInfo> loginInfo;
+    static HashMap<String, Admin> admins;
     int clientCounter = 0;
     Set<Socket> sockets;
     ObjectOutputStream out;
     static MongoDatabase database;
     static Type type;
     MongoClient mongoClient;
+    MongoCollection<Document> entryCollection;
+    MongoCollection<Document> loginInfoCollection;
+    MongoCollection<Document> adminCollection;
 
     public static void main(String[] args) {
         books = new HashMap<>();
         loginInfo = new HashMap<>();
+        admins = new HashMap<>();
         new Server().runServer();
         type = new TypeToken<HashMap<String, LoginInfo>>(){}.getType();
     }
@@ -51,8 +56,8 @@ class Server extends Observable {
             // Create a new client and connect to the server
             mongoClient = MongoClients.create(settings);
             database = mongoClient.getDatabase("Library");
-            MongoCollection<Document> collection = database.getCollection("Entries");
-            MongoCursor<Document> cursor = collection.find().iterator();
+            entryCollection = database.getCollection("Entries");
+            MongoCursor<Document> cursor = entryCollection.find().iterator();
             try {
                 while (cursor.hasNext()) {
                     //convert each document to json string
@@ -65,8 +70,8 @@ class Server extends Observable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            MongoCollection<Document> collection1 = database.getCollection("LoginInfo");
-            MongoCursor<Document> cursor1 = collection1.find().iterator();
+            loginInfoCollection = database.getCollection("LoginInfo");
+            MongoCursor<Document> cursor1 = loginInfoCollection.find().iterator();
             try {
                 while (cursor1.hasNext()) {
                     //convert each document to json string
@@ -75,6 +80,20 @@ class Server extends Observable {
                     LoginInfo info = new Gson().fromJson(json, LoginInfo.class);
                     //add the entry to the hashmap
                     loginInfo.put(info.getUserName(), info);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            adminCollection = database.getCollection("Admins");
+            MongoCursor<Document> cursor2 = adminCollection.find().iterator();
+            try {
+                while (cursor2.hasNext()) {
+                    //convert each document to json string
+                    String json = cursor2.next().toJson();
+                    //convert json string to Admin object
+                    Admin admin = new Gson().fromJson(json, Admin.class);
+                    //add the entry to the hashmap
+                    admins.put(admin.getUsername(), admin);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -94,13 +113,12 @@ class Server extends Observable {
                     }
                 }
             }
-            MongoCollection<Document> collection2 = database.getCollection("LoginInfo");
             for (LoginInfo info : loginInfo.values()) {
                 ArrayList<Document> items = new ArrayList<>();
                 for (LoginInfo.IssuedItem item : info.getIssuedItems()) {
                     items.add(new Document("item", item.getItem()).append("issuedDate", item.getIssuedDate()).append("dueDate", item.getDueDate()).append("Late", item.getLate()).append("Fee", item.getFee()));
                 }
-                collection2.updateOne(Filters.eq("UserName", info.getUserName()), new Document("$set", new Document("issuedItems", items)));
+                loginInfoCollection.updateOne(Filters.eq("UserName", info.getUserName()), new Document("$set", new Document("issuedItems", items)));
             }
 
         } catch (Exception e) {
@@ -145,6 +163,9 @@ class Server extends Observable {
         loginInfo.put(username, info);
         clientHandler.sendToClient("REGISTRATION INFORMATION+" + json);
         clientHandler.sendToClient("REGISTERED: " + username);
+        //add to database
+        Document doc = Document.parse(json);
+        loginInfoCollection.insertOne(doc);
     }
 
     public void processLogin(String username, String password, ClientHandler clientHandler) {
@@ -194,6 +215,14 @@ class Server extends Observable {
                     }
                     books.get(itemInfo[0]).setCount(books.get(itemInfo[0]).getCount() - 1);
                     loginInfo.get(username).getIssuedItems().add(new LoginInfo.IssuedItem(itemInfo[0], itemInfo[1], itemInfo[2]));
+                    //update loginInfo in database
+                    ArrayList<Document> items1 = new ArrayList<>();
+                    for (LoginInfo.IssuedItem item1 : loginInfo.get(username).getIssuedItems()) {
+                        items1.add(new Document("item", item1.getItem()).append("issuedDate", item1.getIssuedDate()).append("dueDate", item1.getDueDate()).append("Late", item1.getLate()).append("Fee", item1.getFee()));
+                    }
+                    loginInfoCollection.updateOne(Filters.eq("UserName", username), new Document("$set", new Document("issuedItems", items1)));
+                    Document doc = new Document("title", books.get(itemInfo[0]).getTitle()).append("genre", books.get(itemInfo[0]).getGenre()).append("author", books.get(itemInfo[0]).getAuthor()).append("available", books.get(itemInfo[0]).getAvailable()).append("media_type", books.get(itemInfo[0]).getMedia_type()).append("count", books.get(itemInfo[0]).getCount());
+                    entryCollection.updateOne(Filters.eq("title", books.get(itemInfo[0]).getTitle()), new Document("$set", doc));
                 } else {
                     //send the book is not available message to the client
                     clientHandler.sendToClient("BOOK NOT AVAILABLE: " + itemInfo[0]);
@@ -210,6 +239,7 @@ class Server extends Observable {
         //have all the clients update their books using Observable
         setChanged();
         notifyObservers(books);
+        //update the books in the database
     }
 
     public void processReturn(String username, String issuedItem, ClientHandler clientHandler ){
@@ -224,12 +254,16 @@ class Server extends Observable {
                 books.get(itemInfo[0]).setAvailable("Yes");
                 books.get(itemInfo[0]).setCount(books.get(itemInfo[0]).getCount() + 1);
                 //remove the book from the issued items
-//                for (LoginInfo.IssuedItem issued : loginInfo.get(username).getIssuedItems()) {
-//                    if (issued.getItem().equals(itemInfo[0])) {
-//                        loginInfo.get(username).getIssuedItems().remove(issued);
-//                    }
-//                }
                 loginInfo.get(username).getIssuedItems().removeIf(issued -> issued.getItem().equals(itemInfo[0]));
+                //update loginInfo in database
+                ArrayList<Document> items1 = new ArrayList<>();
+                for (LoginInfo.IssuedItem item1 : loginInfo.get(username).getIssuedItems()) {
+                    items1.add(new Document("item", item1.getItem()).append("issuedDate", item1.getIssuedDate()).append("dueDate", item1.getDueDate()).append("Late", item1.getLate()).append("Fee", item1.getFee()));
+                }
+                loginInfoCollection.updateOne(Filters.eq("UserName", username), new Document("$set", new Document("issuedItems", items1)));
+                //update this particular book in the database
+                Document doc = new Document("title", books.get(itemInfo[0]).getTitle()).append("genre", books.get(itemInfo[0]).getGenre()).append("author", books.get(itemInfo[0]).getAuthor()).append("available", books.get(itemInfo[0]).getAvailable()).append("media_type", books.get(itemInfo[0]).getMedia_type()).append("count", books.get(itemInfo[0]).getCount());
+                entryCollection.updateOne(Filters.eq("title", books.get(itemInfo[0]).getTitle()), new Document("$set", doc));
             }
         }
         //send the updated books to the client
@@ -242,7 +276,22 @@ class Server extends Observable {
         //have all the clients update their books using Observable
         setChanged();
         notifyObservers(books);
-
     }
 
+    public void processAdminLogin(String username, String password, String ID, ClientHandler handler){
+        //check if the username and password are in the database
+        if (admins.containsKey(username)) {
+            if (admins.get(username).getPassword().equals(password) && admins.get(username).getID().equals(ID)){
+                Gson gson = new Gson();
+                String json = gson.toJson(admins.get(username));
+                handler.sendToClient("ADMININFO+" + json);
+                json = gson.toJson(loginInfo);
+                handler.sendToClient("ADMINUSERMANAGEMENT+" + json);
+                handler.sendToClient("ADMINLOGGEDIN+" + username);
+            }
+        }
+        else{
+            handler.sendToClient("INVALIDADMINLOGIN+" + username);
+        }
+    }
 }

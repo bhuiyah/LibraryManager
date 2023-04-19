@@ -111,6 +111,13 @@ class ClientHandler implements Runnable, Observer {
           //send the username and the IssuedItem object to the server
           server.processReturn(username, String.valueOf(sb), this);
         }
+        else if(input.startsWith("ADMINLOGIN")){
+          String[] tokens = input.split(":");
+          String username = tokens[1];
+          String password = tokens[2];
+          String ID = tokens[3];
+          server.processAdminLogin(username, password, ID, this);
+        }
       }
     } catch (IOException e) {
       e.printStackTrace();

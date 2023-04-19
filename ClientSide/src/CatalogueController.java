@@ -1,6 +1,7 @@
 import com.google.gson.internal.LinkedTreeMap;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -119,6 +120,15 @@ public class CatalogueController implements Initializable {
     private TableColumn<String, String> TitleReturnCart;
     @FXML
     private TableColumn<String, String> FeeReturnCart;
+    @FXML
+    private ComboBox<String> FilterGenreDropDown;
+    @FXML
+    private ComboBox<String> FilterTypeDropDown;
+    @FXML
+    private Button ApplyFilterButton;
+    @FXML
+    private Button ResetFilterButton;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Catalogue Controller Initialized");
@@ -201,6 +211,7 @@ public class CatalogueController implements Initializable {
         this.entries = entries;
         //update all the tableviews
         populateTableView();
+        populateFilterDropDown();
     }
 
     public void setLoginInfo(LoginInfo loginInfo){
@@ -219,7 +230,17 @@ public class CatalogueController implements Initializable {
 
     public void SearchButtonPressed(){
         //check the contents of the search bar
+        //get contents in camel case
         String SearchText = SearchBar.getText();
+        //first letter of each word is capitalized
+        for(int i = 0; i < SearchText.length(); i++){
+            if(i == 0){
+                SearchText = SearchText.substring(0, 1).toUpperCase() + SearchText.substring(1);
+            }
+            else if(SearchText.charAt(i) == ' '){
+                SearchText = SearchText.substring(0, i + 1) + SearchText.substring(i + 1, i + 2).toUpperCase() + SearchText.substring(i + 2);
+            }
+        }
         //if the search bar is empty, populate the tableview with all entries
         if(SearchText.equals("")){
             populateTableView();
@@ -320,10 +341,28 @@ public class CatalogueController implements Initializable {
         //check if the entry is available and already in the CartList
         //if the entry is availble and not in the CartList, add it to the CartList
         Entry selectedEntry = TableView.getSelectionModel().getSelectedItem();
-        if(selectedEntry.getAvailable().equals("Yes") && !CartList.getItems().contains(selectedEntry.getTitle())){
-            System.out.println(selectedEntry.getTitle());
-            CartList.getItems().add(selectedEntry.getTitle());
+        //check if the item is already in the cart
+        if(CartList.getItems().contains(selectedEntry.getTitle())){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Item already in cart");
+            alert.setContentText("Please remove the item from the cart before adding it again");
+            alert.showAndWait();
         }
+        else{
+            //check if the item is available
+            if(selectedEntry.getAvailable().equals("Yes") && !CartList.getItems().contains(selectedEntry.getTitle())){
+                CartList.getItems().add(selectedEntry.getTitle());
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Item not available");
+                alert.setContentText("Please select another item");
+                alert.showAndWait();
+            }
+        }
+
     }
 
     public void DeleteEntryButtonPressed(){
@@ -508,9 +547,10 @@ public class CatalogueController implements Initializable {
         //add the selected items from the ReturnView to the ReturnCart. only get their titles
         ObservableList<LoginInfo.IssuedItem> selectedItems = ReturnView.getSelectionModel().getSelectedItems();
         for(LoginInfo.IssuedItem item : selectedItems){
-            ReturnCart.getItems().add(item);
+            if(!ReturnCart.getItems().contains(item)) {
+                ReturnCart.getItems().add(item);
+            }
         }
-        //cellfactory for the ReturnCart
         TitleReturnCart.setCellValueFactory(new PropertyValueFactory<>("item"));
         //set each column of FeeReturnCart to the late fee of the item
         FeeReturnCart.setCellValueFactory(new PropertyValueFactory<>("Fee"));
@@ -564,6 +604,74 @@ public class CatalogueController implements Initializable {
     public void ExitButtonPressed(){
         //exit the program
         buttonPressed = "Exit";
+    }
+
+    public void populateFilterDropDown(){
+        //populate the filter dropdown with the titles of all the items in the library
+        HashSet<String> filterList = new HashSet<>();
+        for(Entry item : entries.values()){
+            filterList.add(item.getGenre());
+        }
+        FilterGenreDropDown.getItems().addAll(filterList);
+        HashSet<String> filterList2 = new HashSet<>();
+        for(Entry item : entries.values()){
+            filterList2.add(item.getMedia_type());
+        }
+        FilterTypeDropDown.getItems().addAll(filterList2);
+    }
+
+
+    public void FilterButtonPressed(){
+        //get the items selected from the combo boxes
+        String genre = FilterGenreDropDown.getValue();
+        String type = FilterTypeDropDown.getValue();
+        //if the genre is not null, filter the list by genre and type
+        if(genre != null || type != null){
+            //populate the tableview with items that match the genre and type
+            TableView.getItems().clear();
+            ObservableList<Entry> data = FXCollections.observableArrayList();
+            for(Entry item : entries.values()){
+                if(item.getGenre().equals(genre) && item.getMedia_type().equals(type)){
+                    data.add(item);
+                }
+            }
+            TableView.getItems().addAll(data);
+            //set each column of the tableview to the corresponding item in the list
+            TitleView.setCellValueFactory(new PropertyValueFactory<>("title"));
+            GenreView.setCellValueFactory(new PropertyValueFactory<>("genre"));
+            TypeView.setCellValueFactory(new PropertyValueFactory<>("media_type"));
+            AuthorView.setCellValueFactory(new PropertyValueFactory<>("author"));
+            CountView.setCellValueFactory(new PropertyValueFactory<>("count"));
+            CheckedOutView.setCellValueFactory(new PropertyValueFactory<>("available"));
+            CheckedOutView.setCellFactory(column -> {
+                return new TableCell<Entry, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setText(null);
+                            setStyle("");
+                        } else {
+                            setText(item);
+                            if (item.equals("Yes")) {
+                                setStyle("-fx-text-fill: green;");
+                            } else {
+                                setStyle("-fx-text-fill: red;");
+                            }
+                        }
+                    }
+                };
+            });
+        }
+    }
+
+    public void ResetFilterButtonPressed(){
+        //reset the filter
+        FilterGenreDropDown.setValue(null);
+        FilterTypeDropDown.setValue(null);
+        //populate the tableview with all the items in the library
+        TableView.getItems().clear();
+        populateTableView();
     }
 
 }

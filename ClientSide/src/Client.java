@@ -24,15 +24,20 @@ public class Client extends Application {
     public static Stage stage;
     public volatile LoginController loginController;
     public volatile CatalogueController catalogueController;
+    public volatile AdminController adminController;
     private Thread writerThread;
     Socket socket;
     HashMap<String, Entry> books;
     String username = "";
     LoginInfo loginInfo;
-    static Type type;
+    Admin admin;
+    static Type EntryHashMapType;
+    static Type LoginInfoHashMapType;
+    HashMap<String, LoginInfo> loginInfoHashMap;
 
     public static void main(String[] args) {
-        type = new TypeToken<HashMap<String, Entry>>(){}.getType();
+        EntryHashMapType = new TypeToken<HashMap<String, Entry>>(){}.getType();
+        LoginInfoHashMapType = new TypeToken<HashMap<String, LoginInfo>>(){}.getType();
         launch(args);
     }
 
@@ -115,7 +120,7 @@ public class Client extends Application {
                             //convert books to a set of entries
                             Gson gson = new Gson();
                             //expecting Collections<Entry>
-                            books = gson.fromJson(lib, type);
+                            books = gson.fromJson(lib, EntryHashMapType);
                             //update the catalogue
                             Platform.runLater(() -> {
                                 catalogueController.setEntries(books);
@@ -135,7 +140,7 @@ public class Client extends Application {
                             //convert books to a set of entries
                             Gson gson = new Gson();
                             //expecting Collections<Entry>
-                            books = gson.fromJson(lib, type);
+                            books = gson.fromJson(lib, EntryHashMapType);
 
                             //books should have all the keys of bookMap
                             //update the catalogue
@@ -156,11 +161,32 @@ public class Client extends Application {
                             //convert books to a set of entries
                             Gson gson = new Gson();
                             //expecting Collections<Entry>
-                            books = gson.fromJson(lib, type);
+                            books = gson.fromJson(lib, EntryHashMapType);
                             //update the catalogue
                             Platform.runLater(() -> {
                                 catalogueController.setEntries(books);
                                 catalogueController.returnComplete();
+                            });
+                        }
+                        else if(input.startsWith("ADMININFO+")){
+                            String[] tokens = input.split("\\+");
+                            String json = tokens[1];
+                            System.out.println(json);
+                            Gson gson = new Gson();
+                            admin = gson.fromJson(json, Admin.class);
+                        }
+                        else if(input.startsWith("ADMINUSERMANAGEMENT+")){
+                            String[] tokens = input.split("\\+");
+                            String json = tokens[1];
+                            Gson gson = new Gson();
+                            loginInfoHashMap = gson.fromJson(json, LoginInfoHashMapType);
+                        }
+                        else if(input.startsWith("ADMINLOGGEDIN+")){
+                            accessAdminPage();
+                        }
+                        else if(input.startsWith("INVALIDADMINLOGIN+")){
+                            Platform.runLater(() -> {
+                                loginController.setLoginError("Invalid Admin username or password");
                             });
                         }
                     }
@@ -198,6 +224,21 @@ public class Client extends Application {
                         loginController = loader.getController();
                         if (loginController != null && !Objects.equals(loginController.getUserName(), "") && !Objects.equals(loginController.getPassword(), "")) {
                             String message = "LOGIN:" + loginController.getUserName() + ":" + loginController.getPassword();
+                            try {
+                                sendToServer(message);
+                                username = loginController.getUserName();
+                                loginController.setUserName("");
+                                loginController.setPassword("");
+                                loginController.setButtonPressed("");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                    else if(loginController.buttonPressed.equals("AdminLogin")){
+                        loginController = loader.getController();
+                        if (loginController != null && !Objects.equals(loginController.getAdminUserName(), "") && !Objects.equals(loginController.getAdminPassword(), "") && !Objects.equals(loginController.getAdminID(), "")){
+                            String message = "ADMINLOGIN:" + loginController.getAdminUserName() + ":" + loginController.getAdminPassword() + ":" + loginController.getAdminID();
                             try {
                                 sendToServer(message);
                                 username = loginController.getUserName();
@@ -293,6 +334,27 @@ public class Client extends Application {
         });
         System.out.println("Starting writer thread");
         writerThread2.start();
+    }
+
+    public void accessAdminPage(){
+        writerThread.interrupt();
+        Platform.runLater(() -> {
+            try {
+                loader = new FXMLLoader(getClass().getResource("AdminGUI.fxml"));
+                root = loader.load();
+                adminController = loader.getController();
+                adminController.setClient(this);
+                adminController.setUserName(username);
+                adminController.setLoginInfo(loginInfoHashMap);
+                adminController.setEntries(books);
+                scene = new Scene(root);
+                stage.setScene(scene);
+                stage.setTitle("Admin Page");
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     protected void sendToServer(String info) throws IOException {

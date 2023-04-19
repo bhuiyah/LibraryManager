@@ -33,6 +33,7 @@
 -->
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TableColumn?>
@@ -48,7 +49,7 @@
    <children>
       <StackPane fx:id="MainInterfacePane" layoutY="116.0" prefHeight="846.0" prefWidth="1223.0">
          <children>
-            <Pane fx:id="DashPane" prefHeight="814.0" prefWidth="1223.0">
+            <Pane fx:id="DashPane" opacity="0.0" prefHeight="814.0" prefWidth="1223.0">
                <children>
                   <AnchorPane layoutX="112.0" layoutY="132.0" prefHeight="225.0" prefWidth="262.0">
                      <children>
@@ -73,30 +74,7 @@
                   </AnchorPane>
                </children>
             </Pane>
-            <Pane fx:id="CheckOutPane" prefHeight="836.0" prefWidth="1223.0">
-               <children>
-                  <Button fx:id="SearchButton" layoutX="1004.0" layoutY="74.0" mnemonicParsing="false" onAction="#SearchButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Search" />
-                  <TextField fx:id="SearchBar" layoutX="15.0" layoutY="72.0" prefHeight="29.0" prefWidth="977.0" />
-                  <Label layoutX="16.0" layoutY="35.0" prefHeight="37.0" prefWidth="703.0" text="Search for Title, Genre, Author " />
-                  <TableView fx:id="TableView" layoutX="16.0" layoutY="122.0" onKeyPressed="#selectEntry" onMouseClicked="#selectEntry" prefHeight="337.0" prefWidth="1189.0">
-                    <columns>
-                      <TableColumn fx:id="TitleView" prefWidth="326.0" text="Title" />
-                      <TableColumn fx:id="AuthorView" prefWidth="310.0" text="Author" />
-                        <TableColumn fx:id="GenreView" prefWidth="236.0" text="Genre" />
-                        <TableColumn fx:id="CheckedOutView" prefWidth="104.0" text="Available" />
-                        <TableColumn fx:id="CountView" prefWidth="111.0" text="Count" />
-                        <TableColumn fx:id="TypeView" prefWidth="101.0" text="Type" />
-                    </columns>
-                  </TableView>
-                  <ListView fx:id="CartList" layoutX="16.0" layoutY="496.0" onKeyPressed="#selectEntry" prefHeight="200.0" prefWidth="1189.0" />
-                  <TextFlow fx:id="CartText" layoutX="14.0" layoutY="467.0" prefHeight="29.0" prefWidth="180.0" />
-                  <Button fx:id="CheckoutEntryButton" layoutX="1046.0" layoutY="716.0" mnemonicParsing="false" onAction="#goToCheckout" prefHeight="61.0" prefWidth="138.0" text="CheckoutEntryButton" />
-                  <Button fx:id="ResetEntryButton" layoutX="24.0" layoutY="716.0" mnemonicParsing="false" onAction="#ResetEntryButtonPressed" prefHeight="61.0" prefWidth="160.0" text="Clear Cart" />
-                  <Button fx:id="DeleteEntryButton" layoutX="536.0" layoutY="716.0" mnemonicParsing="false" onAction="#DeleteEntryButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Delete Selected" />
-                  <Button fx:id="ResetSearch" layoutX="1115.0" layoutY="74.0" mnemonicParsing="false" onAction="#ResetSearchPressed" prefHeight="25.0" prefWidth="88.0" text="Reset" />
-               </children>
-            </Pane>
-            <Pane fx:id="FinalizeScreen" prefHeight="200.0" prefWidth="200.0">
+            <Pane fx:id="FinalizeScreen" opacity="0.0" prefHeight="200.0" prefWidth="200.0">
                <children>
                   <Button fx:id="BackButtonOnCheckOutScreen" layoutX="59.0" layoutY="14.0" mnemonicParsing="false" onAction="#BackButtonOnCheckoutPressed" prefHeight="44.0" prefWidth="125.0" text="&lt;--" />
                   <Button fx:id="FinalizeCheckoutButton" layoutX="967.0" layoutY="714.0" mnemonicParsing="false" onAction="#FinalizeCheckOutButtonPressed" prefHeight="83.0" prefWidth="166.0" text="Finalize Checkout" />
@@ -111,7 +89,7 @@
                   </TableView>
                </children>
             </Pane>
-            <Pane fx:id="ReturnScreen" prefHeight="200.0" prefWidth="200.0">
+            <Pane fx:id="ReturnScreen" opacity="0.0" prefHeight="200.0" prefWidth="200.0">
                <children>
                   <TableView fx:id="ReturnView" layoutX="123.0" layoutY="58.0" onKeyPressed="#ReturnCartSelected" onMouseClicked="#ReturnCartSelected" prefHeight="362.0" prefWidth="977.0">
                     <columns>
@@ -132,6 +110,33 @@
                       <TableColumn fx:id="FeeReturnCart" prefWidth="485.0" text="Fee" />
                     </columns>
                   </TableView>
+               </children>
+            </Pane>
+            <Pane fx:id="CheckOutPane" prefHeight="836.0" prefWidth="1223.0">
+               <children>
+                  <Button fx:id="SearchButton" layoutX="1012.0" layoutY="39.0" mnemonicParsing="false" onAction="#SearchButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Search" />
+                  <TextField fx:id="SearchBar" layoutX="14.0" layoutY="37.0" prefHeight="29.0" prefWidth="977.0" />
+                  <Label layoutX="15.0" layoutY="7.0" prefHeight="37.0" prefWidth="703.0" text="Search for Title, Genre, Author " />
+                  <TableView fx:id="TableView" layoutX="16.0" layoutY="122.0" onKeyPressed="#selectEntry" onMouseClicked="#selectEntry" prefHeight="337.0" prefWidth="1189.0">
+                    <columns>
+                      <TableColumn fx:id="TitleView" prefWidth="326.0" text="Title" />
+                      <TableColumn fx:id="AuthorView" prefWidth="310.0" text="Author" />
+                        <TableColumn fx:id="GenreView" prefWidth="236.0" text="Genre" />
+                        <TableColumn fx:id="CheckedOutView" prefWidth="104.0" text="Available" />
+                        <TableColumn fx:id="CountView" prefWidth="111.0" text="Count" />
+                        <TableColumn fx:id="TypeView" prefWidth="101.0" text="Type" />
+                    </columns>
+                  </TableView>
+                  <ListView fx:id="CartList" layoutX="16.0" layoutY="496.0" onKeyPressed="#selectEntry" prefHeight="200.0" prefWidth="1189.0" />
+                  <TextFlow fx:id="CartText" layoutX="14.0" layoutY="467.0" prefHeight="29.0" prefWidth="180.0" />
+                  <Button fx:id="CheckoutEntryButton" layoutX="1046.0" layoutY="716.0" mnemonicParsing="false" onAction="#goToCheckout" prefHeight="61.0" prefWidth="138.0" text="CheckoutEntryButton" />
+                  <Button fx:id="ResetEntryButton" layoutX="24.0" layoutY="716.0" mnemonicParsing="false" onAction="#ResetEntryButtonPressed" prefHeight="61.0" prefWidth="160.0" text="Clear Cart" />
+                  <Button fx:id="DeleteEntryButton" layoutX="536.0" layoutY="716.0" mnemonicParsing="false" onAction="#DeleteEntryButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Delete Selected" />
+                  <Button fx:id="ResetSearch" layoutX="1115.0" layoutY="39.0" mnemonicParsing="false" onAction="#ResetSearchPressed" prefHeight="25.0" prefWidth="88.0" text="Reset" />
+                  <ComboBox fx:id="FilterGenreDropDown" layoutX="16.0" layoutY="74.0" prefHeight="25.0" prefWidth="191.0" promptText="Filter Genre" />
+                  <Button fx:id="ApplyFilterButton" layoutX="415.0" layoutY="74.0" mnemonicParsing="false" onAction="#FilterButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Apply" />
+                  <ComboBox fx:id="FilterTypeDropDown" layoutX="219.0" layoutY="74.0" prefHeight="25.0" prefWidth="191.0" promptText="Filter Type" />
+                  <Button fx:id="ResetFilterButton" layoutX="510.0" layoutY="74.0" mnemonicParsing="false" onAction="#ResetFilterButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Reset Filter" />
                </children>
             </Pane>
          </children>
