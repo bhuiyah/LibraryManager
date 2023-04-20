@@ -3,11 +3,14 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Observer;
 import java.util.Observable;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 class ClientHandler implements Runnable, Observer {
 
@@ -15,6 +18,7 @@ class ClientHandler implements Runnable, Observer {
   private Socket clientSocket;
   private BufferedReader fromClient;
   private PrintWriter toClient;
+  static Type type;
 
   protected ClientHandler(Server server, Socket clientSocket) {
     System.out.println("connected");
@@ -118,6 +122,29 @@ class ClientHandler implements Runnable, Observer {
           String ID = tokens[3];
           server.processAdminLogin(username, password, ID, this);
         }
+        else if(input.startsWith("ADDNEWENTRY")){
+          //input will come in the form of ADDNEWENTRY:Title:Author:Genre:Type:Count
+            String[] tokens = input.split(":");
+            String title = tokens[1];
+            String author = tokens[2];
+            String genre = tokens[3];
+            String type = tokens[4];
+            int count = Integer.parseInt(tokens[5]);
+            server.processAddNewEntry(title, author, genre, type, count, this);
+        }
+        else if(input.startsWith("ADDCURRENTENTRY")){
+          //input will come in the form of ADDCURRENTENTRY:Title:Count
+            String[] tokens = input.split(":");
+            String title = tokens[1];
+            int count = Integer.parseInt(tokens[2]);
+            server.processAddCurrentEntry(title, count, this);
+        }
+        else if(input.startsWith("REMOVE")){
+          //input will come in the form of REMOVE:Title
+            String[] tokens = input.split(":");
+            String title = tokens[1];
+            server.processRemove(title, this);
+        }
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -130,9 +157,28 @@ class ClientHandler implements Runnable, Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    //arg is going to be Entry[] array, convert to gson string and send to client
-    Gson gson = new Gson();
-    String json = gson.toJson(arg);
-    sendToClient("UPDATELIBRARY+" + json);
+//    Gson gson = new Gson();
+//    String json = gson.toJson(arg);
+//    //check if arg is an instance of HashMap<String, Entry>
+//
+//    sendToClient("UPDATELIBRARY+" + json);
+//    sendToClient("UPDATEDLOGININFO+" + json);
+    //check if arg is an instance of HashMap<String, LoginInfo>
+    if(arg instanceof HashMap){
+      try {
+        HashMap<String, LoginInfo> loginInfo = (HashMap<String, LoginInfo>) arg;
+        Gson gson = new Gson();
+        String json = gson.toJson(loginInfo);
+        sendToClient("UPDATEDLOGININFO+" + json);
+      } catch (Exception ignored) {
+      }
+      try{
+        HashMap<String, Entry> library = (HashMap<String, Entry>) arg;
+        Gson gson = new Gson();
+        String json = gson.toJson(library);
+        sendToClient("UPDATEDLIBRARY+" + json);
+      } catch (Exception ignored) {
+      }
+    }
   }
 }

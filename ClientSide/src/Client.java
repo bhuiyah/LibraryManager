@@ -145,7 +145,16 @@ public class Client extends Application {
                             //books should have all the keys of bookMap
                             //update the catalogue
                             Platform.runLater(() -> {
-                                catalogueController.setEntries(books);
+                                //check if the controller is null
+                                if (catalogueController != null) {
+                                    catalogueController.setEntries(books);
+                                }
+                            });
+                            Platform.runLater(() -> {
+                                //check if the controller is null
+                                if (adminController != null) {
+                                    adminController.setEntries(books);
+                                }
                             });
                         } else if (input.startsWith("RETURNEDUSERNAME+")) {
                             String[] split = input.split("\\+");
@@ -188,6 +197,35 @@ public class Client extends Application {
                             Platform.runLater(() -> {
                                 loginController.setLoginError("Invalid Admin username or password");
                             });
+                        }
+                        else if(input.startsWith("BOOKDOESNOTEXIST+")){
+                            //get the book name
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.EntryDoesNotExist("Entry does not exist");
+                                });
+                            }
+                        }
+                        else if(input.startsWith("BOOKALREADYEXISTS+")){
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.EntryAlreadyExists("Entry already exists");
+                                });
+                            }
+                        }
+                        else if(input.startsWith("UPDATEDLOGININFO+")){
+                            //input will have a "UPDATEDLOGININFO" followed by a space and then the login info in the form of a json string
+                            //get rid of UPDATEDLOGININFO and grab the json string
+                            String[] tokens = input.split("\\+");
+                            String json = tokens[1];
+                            Gson gson = new Gson();
+                            loginInfoHashMap = gson.fromJson(json, LoginInfoHashMapType);
+                            //update the admin page
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.setLoginInfo(loginInfoHashMap);
+                                });
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -299,6 +337,7 @@ public class Client extends Application {
                                 try {
                                     sendToServer(message);
                                     catalogueController.setCheckOutList(new ArrayList<>());
+                                    catalogueController.buttonPressed = "";
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -310,6 +349,7 @@ public class Client extends Application {
                                 try {
                                     sendToServer(message);
                                     catalogueController.setReturnList(new ArrayList<>());
+                                    catalogueController.buttonPressed = "";
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -345,6 +385,7 @@ public class Client extends Application {
                 adminController = loader.getController();
                 adminController.setClient(this);
                 adminController.setUserName(username);
+                adminController.setAdmin(admin);
                 adminController.setLoginInfo(loginInfoHashMap);
                 adminController.setEntries(books);
                 scene = new Scene(root);
@@ -355,6 +396,82 @@ public class Client extends Application {
                 e.printStackTrace();
             }
         });
+        System.out.println("Admin page accessed");
+        //create a new thread for the adnin page
+        Thread writerThread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //delay so that the admin controller is loaded
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("running");
+                adminController = loader.getController();
+                while (!socket.isClosed()) {
+                    adminController = loader.getController();
+                    if (adminController.buttonPressed.equals("AddNewEntry")) {
+                        if ((adminController != null && !Objects.equals(adminController.getAddTitleText(), "") && !Objects.equals(adminController.getAddAuthorText(), "") && !Objects.equals(adminController.getAddGenreText(), "") && !Objects.equals(adminController.getAddTypeText(), "") && !Objects.equals(adminController.getNewCountText(), ""))) {
+                            String message = "ADDNEWENTRY:" + adminController.getAddTitleText() + ":" + adminController.getAddAuthorText() + ":" + adminController.getAddGenreText() + ":" + adminController.getAddTypeText() + ":" + adminController.getNewCountText();
+                            try {
+                                sendToServer(message);
+                                adminController.setAddTitleText("");
+                                adminController.setAddAuthorText("");
+                                adminController.setAddGenreText("");
+                                adminController.setAddTypeText("");
+                                adminController.setNewCountText("");
+                                adminController.setButtonPressed("");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                    else if(adminController.buttonPressed.equals("AddCurrentEntry")){
+                        if(adminController != null && !Objects.equals(adminController.getExistingCountText(), "") && !Objects.equals(adminController.getDropDownValue(), "")){
+                            String message = "ADDCURRENTENTRY:" + adminController.getDropDownValue() + ":" + adminController.getExistingCountText();
+                            try {
+                                sendToServer(message);
+                                adminController.setExistingCountText("");
+                                adminController.setDropDownValue(null);
+                                adminController.setButtonPressed("");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                    else if(adminController.buttonPressed.equals("RemoveEntry")){
+                        if (adminController != null && !Objects.equals(adminController.getEntriesToBeRemoved(), "" ) ) {
+                            String message = "REMOVE:" + adminController.getEntriesToBeRemoved();
+                            try {
+                                sendToServer(message);
+                                adminController.setEntriesToBeRemoved("");
+                                adminController.setButtonPressed("");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+
+                    else if(adminController.getbuttonPressed().equals("Exit")){
+                        try {
+                            sendToServer("LOGOUT");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                stage.setOnCloseRequest(EventListener -> {
+                    try {
+                        sendToServer("LOGOUT");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
+        System.out.println("Starting writer thread");
+        writerThread2.start();
     }
 
     protected void sendToServer(String info) throws IOException {

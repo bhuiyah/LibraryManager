@@ -62,21 +62,6 @@ public class LoginInfo implements Serializable {
             this.Fee = "$0";
         }
 
-        public IssuedItem(String item, String issuedDate, String dueDate, String Late, String Fee) {
-            this.item = item;
-            this.issuedDate = issuedDate;
-            this.dueDate = dueDate;
-            this.Late = Late;
-            this.Fee = Fee;
-        }
-
-        //toString
-        //item,issuedDate,dueDate,Late,Fee
-        @Override
-        public String toString() {
-            return item + "," + issuedDate + "," + dueDate + "," + Late + "," + Fee;
-        }
-
         public String getItem() {
             return item;
         }
@@ -117,7 +102,12 @@ public class LoginInfo implements Serializable {
             this.Fee = Fee;
         }
 
-        //toString
-
+        //toString method
+        @Override
+        public String toString() {
+//            return "IssuedItem{" + "item=" + item + ", issuedDate=" + issuedDate + ", dueDate=" + dueDate + ", Late=" + Late + ", Fee=" + Fee + '}';
+            //have a cleaner toString method
+            return item + " " + issuedDate + " " + dueDate + " " + Fee + "\n";
+        }
     }
 }

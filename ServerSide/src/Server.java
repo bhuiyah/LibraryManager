@@ -105,11 +105,9 @@ class Server extends Observable {
                     //for everyday late, add 5 to the fee
                     if (today.isAfter(dueDate)) {
                         item.setLate("Yes");
-                        //for everyday after due date, add 5 to the fee
-                        //Fee is in the form $5.00
                         double fee = Double.parseDouble(item.getFee().substring(1));
-                        fee += 0.5 * (today.getDayOfYear() - dueDate.getDayOfYear());
-                        item.setFee("$" + fee + ".00");
+                        fee += (5 * (today.getDayOfYear() - dueDate.getDayOfYear())) - fee;
+                        item.setFee("$" + fee);
                     }
                 }
             }
@@ -292,6 +290,82 @@ class Server extends Observable {
         }
         else{
             handler.sendToClient("INVALIDADMINLOGIN+" + username);
+        }
+    }
+
+    public void processAddNewEntry(String title, String author, String genre, String type, int count, ClientHandler clientHandler) {
+        //check if the book is already in the database
+        if (books.containsKey(title)) {
+            clientHandler.sendToClient("BOOKALREADYEXISTS+" + title);
+            //still add the count to the current number of count
+            books.get(title).setCount(books.get(title).getCount() + count);
+            Document doc = new Document("title", title).append("genre", genre).append("author", author).append("available", "Yes").append("media_type", type).append("count", books.get(title).getCount());
+            entryCollection.updateOne(Filters.eq("title", title), new Document("$set", doc));
+            //send the updated books to the client
+            Gson gson = new Gson();
+            String json = gson.toJson(books);
+            //have all the clients update their books using Observable
+            setChanged();
+            notifyObservers(books);
+        } else {
+            //add the book to the database
+            books.put(title, new Entry(title, author, genre,"Yes",  type, count));
+            Document doc = new Document("title", title).append("genre", genre).append("author", author).append("available", "Yes").append("media_type", type).append("count", count);
+            entryCollection.insertOne(doc);
+            //send the updated books to the client
+            Gson gson = new Gson();
+            String json = gson.toJson(books);
+            //have all the clients update their books using Observable
+            setChanged();
+            notifyObservers(books);
+        }
+    }
+
+    public void processAddCurrentEntry(String title, int count, ClientHandler clientHandler) {
+        //check if the book is already in the database
+        if (books.containsKey(title)) {
+            //add the book to the database
+            books.get(title).setCount(books.get(title).getCount() + count);
+            Document doc = new Document("title", title).append("genre", books.get(title).getGenre()).append("author", books.get(title).getAuthor()).append("available", books.get(title).getAvailable()).append("media_type", books.get(title).getMedia_type()).append("count", books.get(title).getCount());
+            entryCollection.updateOne(Filters.eq("title", books.get(title).getTitle()), new Document("$set", doc));
+            //send the updated books to the client
+            Gson gson = new Gson();
+            String json = gson.toJson(books);
+            //have all the clients update their books using Observable
+            setChanged();
+            notifyObservers(books);
+        } else {
+            clientHandler.sendToClient("BOOKDOESNOTEXIST+" + title);
+        }
+    }
+
+    public void processRemove(String title, ClientHandler clientHandler) {
+        //check if the book is already in the database
+        if (books.containsKey(title)) {
+            //remove the book from the database
+            books.remove(title);
+            entryCollection.deleteOne(Filters.eq("title", title));
+            //send the updated books to the client
+            Gson gson = new Gson();
+            String json = gson.toJson(books);
+            //have all the clients update their books using Observable
+            setChanged();
+            notifyObservers(books);
+            //check if any users have the book issued
+            //remove the item from the issued items of the user
+            for (String username : loginInfo.keySet()) {
+                loginInfo.get(username).getIssuedItems().removeIf(issued -> issued.getItem().equals(title));
+                //update loginInfo in database
+                ArrayList<Document> items1 = new ArrayList<>();
+                for (LoginInfo.IssuedItem item1 : loginInfo.get(username).getIssuedItems()) {
+                    items1.add(new Document("item", item1.getItem()).append("issuedDate", item1.getIssuedDate()).append("dueDate", item1.getDueDate()).append("Late", item1.getLate()).append("Fee", item1.getFee()));
+                }
+                loginInfoCollection.updateOne(Filters.eq("UserName", username), new Document("$set", new Document("issuedItems", items1)));
+            }
+            setChanged();
+            notifyObservers(loginInfo);
+        } else {
+            clientHandler.sendToClient("BOOKDOESNOTEXIST+" + title);
         }
     }
 }

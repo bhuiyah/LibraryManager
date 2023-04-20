@@ -101,5 +101,13 @@ public class LoginInfo implements Serializable {
         public void setFee(String Fee) {
             this.Fee = Fee;
         }
+
+        //toString method
+        @Override
+        public String toString() {
+//            return "IssuedItem{" + "item=" + item + ", issuedDate=" + issuedDate + ", dueDate=" + dueDate + ", Late=" + Late + ", Fee=" + Fee + '}';
+            //have a cleaner toString method
+            return item + ", " + issuedDate + ", " + dueDate + ", " + Fee + "\n";
+        }
     }
 }

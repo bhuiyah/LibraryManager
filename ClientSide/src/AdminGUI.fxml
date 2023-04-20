@@ -15,33 +15,24 @@
    <children>
       <HBox alignment="CENTER" prefHeight="136.0" prefWidth="1223.0" spacing="100.0">
          <children>
-            <Button fx:id="AddEntriesButton" mnemonicParsing="false" prefHeight="66.0" prefWidth="220.0" text="Add Entries" />
-            <Button fx:id="RemoveEntriesButton" mnemonicParsing="false" prefHeight="66.0" prefWidth="220.0" text="Remove Entries" />
-            <Button fx:id="ManageUsersButton" alignment="CENTER" mnemonicParsing="false" prefHeight="66.0" prefWidth="220.0" text="Manage Users" />
+            <Button fx:id="AddEntriesButton" mnemonicParsing="false" onAction="#AddEntriesButtonPressed" prefHeight="66.0" prefWidth="220.0" text="Add Entries" />
+            <Button fx:id="RemoveEntriesButton" mnemonicParsing="false" onAction="#RemoveEntriesButtonPressed" prefHeight="66.0" prefWidth="220.0" text="Remove Entries" />
+            <Button fx:id="ManageUsersButton" alignment="CENTER" mnemonicParsing="false" onAction="#ManageUsersButtonPressed" prefHeight="66.0" prefWidth="220.0" text="Manage Users" />
+            <Button fx:id="AdminExitButton" alignment="CENTER" mnemonicParsing="false" onAction="#AdminExitButtonPressed" prefHeight="66.0" prefWidth="220.0" text="Exit" />
          </children>
       </HBox>
       <StackPane fx:id="MainInterface" layoutX="-4.0" layoutY="112.0" prefHeight="861.0" prefWidth="1231.0">
          <children>
-            <Pane fx:id="AddEntriesPane" opacity="0.21" prefHeight="200.0" prefWidth="200.0">
+            <Pane fx:id="StartAdminPage" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TextField fx:id="AddTitle" layoutX="446.0" layoutY="371.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Title" />
-                  <TextField fx:id="AddAuthor" layoutX="446.0" layoutY="418.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Author" />
-                  <TextField fx:id="AddGenre" layoutX="446.0" layoutY="466.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Genre" />
-                  <TextField fx:id="AddType" layoutX="446.0" layoutY="513.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Type" />
-                  <Button fx:id="AddButton" layoutX="502.0" layoutY="605.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="79.0" text="Add" />
-                  <Button fx:id="ClearButton" layoutX="652.0" layoutY="605.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="79.0" text="Clear" />
-                  <Label alignment="CENTER" layoutX="446.0" layoutY="149.0" prefHeight="74.0" prefWidth="340.0" text="Add An Entry to the Library" />
-                  <ComboBox fx:id="EntriesDropDown" layoutX="446.0" layoutY="256.0" prefHeight="25.0" prefWidth="340.0" promptText="Find Exisiting Entries" />
-                  <Label alignment="CENTER" layoutX="541.0" layoutY="232.0" prefHeight="17.0" prefWidth="150.0" text="Add Exisiting Entry" />
-                  <Label alignment="CENTER" layoutX="541.0" layoutY="329.0" prefHeight="33.0" prefWidth="150.0" text="Add New Entry" />
-                  <TextField fx:id="ExistingCount" layoutX="446.0" layoutY="298.0" prefHeight="25.0" prefWidth="340.0" promptText="How Many?" />
-                  <TextField fx:id="NewCount" layoutX="446.0" layoutY="560.0" prefHeight="25.0" prefWidth="340.0" promptText="How Many?" />
+                  <Label layoutX="309.0" layoutY="88.0" prefHeight="103.0" prefWidth="614.0" text="Welcome Librarian," />
+                  <Label layoutX="414.0" layoutY="366.0" prefHeight="185.0" prefWidth="404.0" text="You can add entries, remove entries, or manage users" />
                </children>
             </Pane>
-            <Pane fx:id="RemoveEntriesPane" opacity="0.36" prefHeight="200.0" prefWidth="200.0">
+            <Pane fx:id="RemoveEntriesPane" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="RemoveButton" layoutX="551.0" layoutY="719.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="130.0" text="Remove" />
-                  <TableView fx:id="ReturnTableView" layoutX="132.0" layoutY="42.0" prefHeight="642.0" prefWidth="967.0">
+                  <Button fx:id="RemoveButton" layoutX="551.0" layoutY="719.0" mnemonicParsing="false" onAction="#RemoveButtonPressed" prefHeight="49.0" prefWidth="130.0" text="Remove" />
+                  <TableView fx:id="RemoveTableView" layoutX="132.0" layoutY="42.0" onKeyPressed="#selectedRemoveEntry" onMouseClicked="#selectedRemoveEntry" prefHeight="642.0" prefWidth="967.0">
                     <columns>
                       <TableColumn fx:id="Title" prefWidth="483.0" text="Title" />
                       <TableColumn fx:id="RemoveCount" minWidth="0.0" prefWidth="483.0" text="Count" />
@@ -51,14 +42,29 @@
             </Pane>
             <Pane fx:id="ManageUsersPane" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TableView layoutX="132.0" layoutY="41.0" prefHeight="537.0" prefWidth="967.0">
+                  <TableView fx:id="UserTableView" layoutX="132.0" layoutY="41.0" prefHeight="553.0" prefWidth="967.0">
                     <columns>
-                      <TableColumn fx:id="UsernameColumn" prefWidth="489.0" text="Username" />
-                      <TableColumn fx:id="PasswordColumn" prefWidth="477.0" text="Password" />
+                      <TableColumn fx:id="UsernameColumn" prefWidth="966.0" text="Users" />
                     </columns>
                   </TableView>
-                  <Button fx:id="UserListItems" layoutX="363.0" layoutY="659.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="130.0" text="List Items" />
-                  <Button fx:id="RemoveUserButton" layoutX="769.0" layoutY="659.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="130.0" text="Remove User" />
+                  <Button fx:id="ShowPasswordButton" layoutX="541.0" layoutY="651.0" mnemonicParsing="false" onAction="#ShowPasswordButtonPressed" prefHeight="82.0" prefWidth="150.0" text="Show Password" />
+               </children>
+            </Pane>
+            <Pane fx:id="AddEntriesPane" prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <TextField fx:id="AddTitle" layoutX="446.0" layoutY="418.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Title" />
+                  <TextField fx:id="AddAuthor" layoutX="446.0" layoutY="470.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Author" />
+                  <TextField fx:id="AddGenre" layoutX="446.0" layoutY="516.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Genre" />
+                  <TextField fx:id="AddType" layoutX="446.0" layoutY="561.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Type" />
+                  <Button fx:id="AddNewButton" layoutX="502.0" layoutY="653.0" mnemonicParsing="false" onAction="#AddNewButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Add" />
+                  <Button fx:id="ClearButton" layoutX="652.0" layoutY="653.0" mnemonicParsing="false" onAction="#ClearButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Clear" />
+                  <Label alignment="CENTER" layoutX="446.0" layoutY="149.0" prefHeight="74.0" prefWidth="340.0" text="Add An Entry to the Library" />
+                  <ComboBox fx:id="EntriesDropDown" layoutX="446.0" layoutY="256.0" prefHeight="25.0" prefWidth="340.0" promptText="Find Exisiting Entries" />
+                  <Label alignment="CENTER" layoutX="541.0" layoutY="215.0" prefHeight="17.0" prefWidth="150.0" text="Add Exisiting Entry" />
+                  <Label alignment="CENTER" layoutX="542.0" layoutY="385.0" prefHeight="33.0" prefWidth="150.0" text="Add New Entry" />
+                  <TextField fx:id="ExistingCount" layoutX="446.0" layoutY="298.0" prefHeight="25.0" prefWidth="340.0" promptText="How Many?" />
+                  <TextField fx:id="NewCount" layoutX="446.0" layoutY="609.0" prefHeight="25.0" prefWidth="340.0" promptText="How Many?" />
+                  <Button fx:id="AddCurrentButton" layoutX="577.0" layoutY="332.0" mnemonicParsing="false" onAction="#AddCurrentButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Add" />
                </children>
             </Pane>
          </children>

@@ -532,7 +532,7 @@ public class CatalogueController implements Initializable {
                         setStyle("");
                     } else {
                         setText(item);
-                        if (Double.parseDouble(item.substring(1)) > 0) {
+                        if (Integer.parseInt(item.substring(1)) > 0) {
                             setStyle("-fx-text-fill: red;");
                         } else {
                             setStyle("-fx-text-fill: green;");
@@ -674,4 +674,12 @@ public class CatalogueController implements Initializable {
         populateTableView();
     }
 
+    public void EntryDoesNotExist(String entryDoesNotExist) {
+        //alert the user that the entry does not exist
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Entry Does Not Exist");
+        alert.setContentText(entryDoesNotExist);
+        alert.showAndWait();
+    }
 }
