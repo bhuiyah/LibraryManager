@@ -172,10 +172,17 @@ public class Client extends Application {
                             //expecting Collections<Entry>
                             books = gson.fromJson(lib, EntryHashMapType);
                             //update the catalogue
-                            Platform.runLater(() -> {
-                                catalogueController.setEntries(books);
-                                catalogueController.returnComplete();
-                            });
+                            if(catalogueController != null){
+                                Platform.runLater(() -> {
+                                    catalogueController.setEntries(books);
+                                    catalogueController.returnComplete();
+                                });
+                            }
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.setEntries(books);
+                                });
+                            }
                         }
                         else if(input.startsWith("ADMININFO+")){
                             String[] tokens = input.split("\\+");
@@ -412,8 +419,8 @@ public class Client extends Application {
                 while (!socket.isClosed()) {
                     adminController = loader.getController();
                     if (adminController.buttonPressed.equals("AddNewEntry")) {
-                        if ((adminController != null && !Objects.equals(adminController.getAddTitleText(), "") && !Objects.equals(adminController.getAddAuthorText(), "") && !Objects.equals(adminController.getAddGenreText(), "") && !Objects.equals(adminController.getAddTypeText(), "") && !Objects.equals(adminController.getNewCountText(), ""))) {
-                            String message = "ADDNEWENTRY:" + adminController.getAddTitleText() + ":" + adminController.getAddAuthorText() + ":" + adminController.getAddGenreText() + ":" + adminController.getAddTypeText() + ":" + adminController.getNewCountText();
+                        if (adminController != null && !Objects.equals(adminController.AddAuthor.getText(), "") && !Objects.equals(adminController.AddTitle.getText(), "") && !Objects.equals(adminController.AddGenre.getText(), "") && !Objects.equals(adminController.AddType.getText(), "") && !Objects.equals(adminController.NewCount.getText(), "")) {
+                            String message = "ADDNEWENTRY:" + adminController.AddTitle.getText() + ":" + adminController.AddAuthor.getText() + ":" + adminController.AddGenre.getText() + ":" + adminController.AddType.getText() + ":" + adminController.NewCount.getText();
                             try {
                                 sendToServer(message);
                                 adminController.setAddTitleText("");

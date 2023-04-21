@@ -170,6 +170,7 @@ public class CatalogueController implements Initializable {
         LateFeeView.setStyle("-fx-alignment: CENTER;");
         TitleReturnCart.setStyle("-fx-alignment: CENTER;");
         FeeReturnCart.setStyle("-fx-alignment: CENTER;");
+
     }
 
     public void setClient(Client client){

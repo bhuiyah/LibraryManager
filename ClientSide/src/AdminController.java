@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 public class AdminController implements Initializable {
 
     @FXML
-    private TextField AddAuthor;
+    TextField AddAuthor;
 
     @FXML
     private Button AddCurrentButton;
@@ -34,13 +34,13 @@ public class AdminController implements Initializable {
     private Pane AddEntriesPane;
 
     @FXML
-    private TextField AddGenre;
+    TextField AddGenre;
 
     @FXML
-    private TextField AddTitle;
+    TextField AddTitle;
 
     @FXML
-    private TextField AddType;
+    TextField AddType;
 
     @FXML
     private Button ClearButton;
@@ -61,7 +61,7 @@ public class AdminController implements Initializable {
     private Pane ManageUsersPane;
 
     @FXML
-    private TextField NewCount;
+    TextField NewCount;
 
     @FXML
     private Button RemoveButton;

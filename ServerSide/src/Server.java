@@ -198,45 +198,45 @@ class Server extends Observable {
         //check if book is in database
         //split issueditem into name, issued date, and due date
         //issuedItem is coming like this: The Grapes of Wrath,2023-04-15,2023-04-29;Pride and Prejudice,2023-04-15,2023-04-29;The Catcher in the Rye,2023-04-15,2023-04-29;
-        String[] items = issuedItem.split(";");
-        //loop through the items
-        for (String item : items) {
-            //split the item into name, issued date, and due date
-            String[] itemInfo = item.split(",");
+        //issuedItem is a json string of an array of issued items
+        Gson gson = new Gson();
+        LoginInfo.IssuedItem[] items = gson.fromJson(issuedItem, LoginInfo.IssuedItem[].class);
+        for (LoginInfo.IssuedItem item : items) {
             //check if the book is in the database
-            if (books.containsKey(itemInfo[0])) {
+            if (books.containsKey(item.getItem())) {
                 //check if the book is available
-                if (books.get(itemInfo[0]).getAvailable().equals("Yes")) {
+                if (books.get(item.getItem()).getAvailable().equals("Yes")) {
                     //set the book to unavailable
-                    if (books.get(itemInfo[0]).getCount() - 1 == 0) {
-                        books.get(itemInfo[0]).setAvailable("No");
+                    if (books.get(item.getItem()).getCount() - 1 == 0) {
+                        books.get(item.getItem()).setAvailable("No");
                     }
-                    books.get(itemInfo[0]).setCount(books.get(itemInfo[0]).getCount() - 1);
-                    loginInfo.get(username).getIssuedItems().add(new LoginInfo.IssuedItem(itemInfo[0], itemInfo[1], itemInfo[2]));
+                    books.get(item.getItem()).setCount(books.get(item.getItem()).getCount() - 1);
+                    loginInfo.get(username).getIssuedItems().add(new LoginInfo.IssuedItem(item.getItem(), item.getIssuedDate(), item.getDueDate()));
                     //update loginInfo in database
                     ArrayList<Document> items1 = new ArrayList<>();
                     for (LoginInfo.IssuedItem item1 : loginInfo.get(username).getIssuedItems()) {
                         items1.add(new Document("item", item1.getItem()).append("issuedDate", item1.getIssuedDate()).append("dueDate", item1.getDueDate()).append("Late", item1.getLate()).append("Fee", item1.getFee()));
                     }
                     loginInfoCollection.updateOne(Filters.eq("UserName", username), new Document("$set", new Document("issuedItems", items1)));
-                    Document doc = new Document("title", books.get(itemInfo[0]).getTitle()).append("genre", books.get(itemInfo[0]).getGenre()).append("author", books.get(itemInfo[0]).getAuthor()).append("available", books.get(itemInfo[0]).getAvailable()).append("media_type", books.get(itemInfo[0]).getMedia_type()).append("count", books.get(itemInfo[0]).getCount());
-                    entryCollection.updateOne(Filters.eq("title", books.get(itemInfo[0]).getTitle()), new Document("$set", doc));
+                    Document doc = new Document("title", books.get(item.getItem()).getTitle()).append("genre", books.get(item.getItem()).getGenre()).append("author", books.get(item.getItem()).getAuthor()).append("available", books.get(item.getItem()).getAvailable()).append("media_type", books.get(item.getItem()).getMedia_type()).append("count", books.get(item.getItem()).getCount());
+                    entryCollection.updateOne(Filters.eq("title", books.get(item.getItem()).getTitle()), new Document("$set", doc));
                 } else {
                     //send the book is not available message to the client
-                    clientHandler.sendToClient("BOOK NOT AVAILABLE: " + itemInfo[0]);
+                    clientHandler.sendToClient("BOOK NOT AVAILABLE: " + item.getItem());
                 }
             }
         }
         //send the updated books to the client
         //get the loginInfo from the username passed in
-        Gson gson = new Gson();
+        gson = new Gson();
         String json = gson.toJson(loginInfo.get(username));
         clientHandler.sendToClient("CHECKEDOUTUSERNAME+" + json);
         json = gson.toJson(books);
         clientHandler.sendToClient("CHECKEDOUT+" + json);
         //have all the clients update their books using Observable
         setChanged();
-        notifyObservers(books);
+        notifyObservers("books+" + json);
+
         //update the books in the database
     }
 
@@ -273,7 +273,7 @@ class Server extends Observable {
         clientHandler.sendToClient("RETURNED+" + json);
         //have all the clients update their books using Observable
         setChanged();
-        notifyObservers(books);
+        notifyObservers("books" + json);
     }
 
     public void processAdminLogin(String username, String password, String ID, ClientHandler handler){
@@ -306,7 +306,7 @@ class Server extends Observable {
             String json = gson.toJson(books);
             //have all the clients update their books using Observable
             setChanged();
-            notifyObservers(books);
+            notifyObservers("books" + json);
         } else {
             //add the book to the database
             books.put(title, new Entry(title, author, genre,"Yes",  type, count));
@@ -317,7 +317,7 @@ class Server extends Observable {
             String json = gson.toJson(books);
             //have all the clients update their books using Observable
             setChanged();
-            notifyObservers(books);
+            notifyObservers("books" + json);
         }
     }
 
@@ -333,7 +333,7 @@ class Server extends Observable {
             String json = gson.toJson(books);
             //have all the clients update their books using Observable
             setChanged();
-            notifyObservers(books);
+            notifyObservers("books" + json);
         } else {
             clientHandler.sendToClient("BOOKDOESNOTEXIST+" + title);
         }
@@ -350,7 +350,7 @@ class Server extends Observable {
             String json = gson.toJson(books);
             //have all the clients update their books using Observable
             setChanged();
-            notifyObservers(books);
+            notifyObservers("books+" + json);
             //check if any users have the book issued
             //remove the item from the issued items of the user
             for (String username : loginInfo.keySet()) {
@@ -362,8 +362,11 @@ class Server extends Observable {
                 }
                 loginInfoCollection.updateOne(Filters.eq("UserName", username), new Document("$set", new Document("issuedItems", items1)));
             }
+            //convert loginInfo to json
+            gson = new Gson();
+            json = gson.toJson(loginInfo);
             setChanged();
-            notifyObservers(loginInfo);
+            notifyObservers("loginInfo+" + json);
         } else {
             clientHandler.sendToClient("BOOKDOESNOTEXIST+" + title);
         }

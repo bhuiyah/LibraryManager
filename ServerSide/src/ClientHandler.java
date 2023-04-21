@@ -19,6 +19,7 @@ class ClientHandler implements Runnable, Observer {
   private BufferedReader fromClient;
   private PrintWriter toClient;
   static Type type;
+  private String typeOfClient = "NONE";
 
   protected ClientHandler(Server server, Socket clientSocket) {
     System.out.println("connected");
@@ -49,6 +50,7 @@ class ClientHandler implements Runnable, Observer {
           if (tokens.length == 3) {
             String username = tokens[1];
             String password = tokens[2];
+            typeOfClient = "USER";
             // Send the username and password to the server for processing
             server.processRegistration(username, password, this);
           }
@@ -59,6 +61,7 @@ class ClientHandler implements Runnable, Observer {
             String username = tokens[1];
             String password = tokens[2];
             // Send the username and password to the server for processing
+            typeOfClient = "USER";
             server.processLogin(username, password, this);
           }
         }
@@ -83,12 +86,11 @@ class ClientHandler implements Runnable, Observer {
               LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
               issuedItems.add(item);
             }
-            StringBuilder sb = new StringBuilder();
-            for(LoginInfo.IssuedItem item : issuedItems){
-              sb.append(item.toString() + ";");
-            }
-            //send the username and the IssuedItem object to the server
-            server.processCheckout(username, String.valueOf(sb), this);
+            //convert issuedItems to a json string
+            Gson gson = new Gson();
+            String sb = gson.toJson(issuedItems);
+            //send the username and the json string to the server for processing
+            server.processCheckout(username, sb, this);
         }
         if(input.startsWith("RETURN")){
           //RETURN:user1:1984,2023-04-14,2023-04-28;The Catcher in the Rye,2023-04-14,2023-04-28; this is the format of the string
@@ -120,6 +122,7 @@ class ClientHandler implements Runnable, Observer {
           String username = tokens[1];
           String password = tokens[2];
           String ID = tokens[3];
+            typeOfClient = "ADMIN";
           server.processAdminLogin(username, password, ID, this);
         }
         else if(input.startsWith("ADDNEWENTRY")){
@@ -157,28 +160,44 @@ class ClientHandler implements Runnable, Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-//    Gson gson = new Gson();
-//    String json = gson.toJson(arg);
-//    //check if arg is an instance of HashMap<String, Entry>
-//
-//    sendToClient("UPDATELIBRARY+" + json);
-//    sendToClient("UPDATEDLOGININFO+" + json);
-    //check if arg is an instance of HashMap<String, LoginInfo>
-    if(arg instanceof HashMap){
-      try {
-        HashMap<String, LoginInfo> loginInfo = (HashMap<String, LoginInfo>) arg;
-        Gson gson = new Gson();
-        String json = gson.toJson(loginInfo);
-        sendToClient("UPDATEDLOGININFO+" + json);
-      } catch (Exception ignored) {
-      }
-      try{
-        HashMap<String, Entry> library = (HashMap<String, Entry>) arg;
-        Gson gson = new Gson();
-        String json = gson.toJson(library);
-        sendToClient("UPDATEDLIBRARY+" + json);
-      } catch (Exception ignored) {
-      }
-    }
+        //arg starts with "books+" or "loginInfo+"
+        //if arg starts with "books+", then send the updated books to the client
+        //if arg starts with "loginInfo+", then send the updated loginInfo to only the admins
+        if(arg.toString().startsWith("books+")){
+            //get rid of the "books+" part of the string
+            arg = arg.toString().substring(6);
+            updateBooks(o, arg);
+        }
+        else if(arg.toString().startsWith("loginInfo+")){
+            //get rid of the "loginInfo+" part of the string
+            arg = arg.toString().substring(10);
+            updateAdmins(o, arg);
+        }
+
   }
+
+  private void updateBooks(Observable o, Object arg) {
+    //send the updated books to the client
+//    HashMap<String, Entry> books = (HashMap<String, Entry>) arg;
+//    Gson gson = new Gson();
+//    String json = gson.toJson(books);
+//    sendToClient("UPDATEDBOOKS+" + json);
+    sendToClient("UPDATELIBRARY+" + arg);
+  }
+
+  //have another method that will send the updated loginInfo to the observers who are admins
+    public void updateAdmins(Observable o, Object arg){
+        //only send the updated loginInfo to the admins
+        //check if the observer is an admin
+        //loop through the observers and check if they are admins
+        if(typeOfClient.equals("ADMIN")){
+            //send the updated loginInfo to the admin
+            sendToClient("UPDATEDLOGININFO+" + arg);
+        }
+    }
+
+    public void setTypeOfClient(String type){
+        this.typeOfClient = type;
+    }
+
 }
