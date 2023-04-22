@@ -247,23 +247,21 @@ class Server extends Observable {
         //loop through the items
         for (LoginInfo.IssuedItem item : items) {
             //split the item into name, issued date, and due date
-            String[] itemInfo = item.getItem().split(",");
             //check if the book is in the database
-            if (books.containsKey(itemInfo[0])) {
+            if (books.containsKey(item.getItem())) {
                 //set the book to available
-                books.get(itemInfo[0]).setAvailable("Yes");
-                books.get(itemInfo[0]).setCount(books.get(itemInfo[0]).getCount() + 1);
+                books.get(item.getItem()).setAvailable("Yes");
+                books.get(item.getItem()).setCount(books.get(item.getItem()).getCount() + 1);
                 //remove the book from the issued items
-                loginInfo.get(username).getIssuedItems().removeIf(issued -> issued.getItem().equals(itemInfo[0]));
+                loginInfo.get(username).getIssuedItems().removeIf(issued -> issued.getItem().equals(item.getItem()));
                 //update loginInfo in database
                 ArrayList<Document> items1 = new ArrayList<>();
                 for (LoginInfo.IssuedItem item1 : loginInfo.get(username).getIssuedItems()) {
                     items1.add(new Document("item", item1.getItem()).append("issuedDate", item1.getIssuedDate()).append("dueDate", item1.getDueDate()).append("Late", item1.getLate()).append("Fee", item1.getFee()));
                 }
                 loginInfoCollection.updateOne(Filters.eq("UserName", username), new Document("$set", new Document("issuedItems", items1)));
-                //update this particular book in the database
-                Document doc = new Document("title", books.get(itemInfo[0]).getTitle()).append("genre", books.get(itemInfo[0]).getGenre()).append("author", books.get(itemInfo[0]).getAuthor()).append("available", books.get(itemInfo[0]).getAvailable()).append("media_type", books.get(itemInfo[0]).getMedia_type()).append("count", books.get(itemInfo[0]).getCount());
-                entryCollection.updateOne(Filters.eq("title", books.get(itemInfo[0]).getTitle()), new Document("$set", doc));
+                Document doc = new Document("title", books.get(item.getItem()).getTitle()).append("genre", books.get(item.getItem()).getGenre()).append("author", books.get(item.getItem()).getAuthor()).append("available", books.get(item.getItem()).getAvailable()).append("media_type", books.get(item.getItem()).getMedia_type()).append("count", books.get(item.getItem()).getCount());
+                entryCollection.updateOne(Filters.eq("title", books.get(item.getItem()).getTitle()), new Document("$set", doc));
             }
         }
         //send the updated books to the client

@@ -71,7 +71,7 @@ class ClientHandler implements Runnable, Observer {
         if(input.startsWith("CHECKOUT")){
           //CHECKOUT:user1:1984,2023-04-14,2023-04-28;The Catcher in the Rye,2023-04-14,2023-04-28; this is the format of the string
           //split the string by the semicolon
-            String[] tokens = input.split(":");
+            String[] tokens = input.split("`");
             //get the username
             String username = tokens[1];
             //get the books
@@ -81,7 +81,7 @@ class ClientHandler implements Runnable, Observer {
           ArrayList<LoginInfo.IssuedItem> issuedItems = new ArrayList<>();
             for(String book : books.split(";")){
               //split each book by the comma
-              String[] bookInfo = book.split(",");
+              String[] bookInfo = book.split("=");
                 //create a new IssuedItem object
               LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
               issuedItems.add(item);
@@ -95,7 +95,7 @@ class ClientHandler implements Runnable, Observer {
         if(input.startsWith("RETURN")){
           //RETURN:user1:1984,2023-04-14,2023-04-28;The Catcher in the Rye,2023-04-14,2023-04-28; this is the format of the string
           //split the string by the semicolon
-          String[] tokens = input.split(":");
+          String[] tokens = input.split("`");
           //get the username
           String username = tokens[1];
           //get the books
@@ -105,7 +105,7 @@ class ClientHandler implements Runnable, Observer {
           ArrayList<LoginInfo.IssuedItem> issuedItems = new ArrayList<>();
           for(String book : books.split(";")){
             //split each book by the comma
-            String[] bookInfo = book.split(",");
+            String[] bookInfo = book.split("=");
             //create a new IssuedItem object
             LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
             issuedItems.add(item);
@@ -126,7 +126,7 @@ class ClientHandler implements Runnable, Observer {
         }
         else if(input.startsWith("ADDNEWENTRY")){
           //input will come in the form of ADDNEWENTRY:Title:Author:Genre:Type:Count:Description:URL
-            String[] tokens = input.split(":");
+            String[] tokens = input.split("`");
             String title = tokens[1];
             String author = tokens[2];
             String genre = tokens[3];

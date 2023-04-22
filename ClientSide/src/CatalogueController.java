@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import javafx.scene.image.Image;
@@ -33,8 +34,6 @@ public class CatalogueController implements Initializable {
     Client client;
     String buttonPressed = "";
     ArrayList<LoginInfo.IssuedItem> returnList = new ArrayList<>();
-    Stage pictureStage;
-    PictureController pictureController;
 
     @FXML
     private TextFlow TopBar;
@@ -204,7 +203,7 @@ public class CatalogueController implements Initializable {
                     //get the tableview item's url and description when i hover over it
                     String url = entry.getUrl();
                     String description = entry.getDescription();
-                    //set the image from the url
+                    //set the image
                     Image.setImage(new Image(url));
                     //set the description
                     Description.getChildren().clear();
@@ -499,7 +498,7 @@ public class CatalogueController implements Initializable {
         //return the checkOutList as a string that can be turned into a ArrayList<LoginInfo.IssuedItem> later
         StringBuilder checkOutListString = new StringBuilder();
         for(LoginInfo.IssuedItem item : checkOutList){
-            checkOutListString.append(item.getItem()).append(",").append(item.getIssuedDate()).append(",").append(item.getDueDate()).append(";");
+            checkOutListString.append(item.getItem()).append("=").append(item.getIssuedDate()).append("=").append(item.getDueDate()).append(";");
         }
         return checkOutListString.toString();
     }
@@ -626,7 +625,7 @@ public class CatalogueController implements Initializable {
         //return the returnList as a string that can be turned into a ArrayList<LoginInfo.IssuedItem> later
         StringBuilder returnListString = new StringBuilder();
         for(LoginInfo.IssuedItem item : returnList){
-            returnListString.append(item.getItem()).append(",").append(item.getIssuedDate()).append(",").append(item.getDueDate()).append(";");
+            returnListString.append(item.getItem()).append("=").append(item.getIssuedDate()).append("=").append(item.getDueDate()).append(";");
         }
         return returnListString.toString();
     }

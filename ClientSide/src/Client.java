@@ -369,7 +369,7 @@ public class Client extends Application {
                         catalogueController = loader.getController();
                         if (catalogueController.buttonPressed.equals("CheckOut")) {
                             if (catalogueController != null && catalogueController.getCheckOutList().length() != 0) {
-                                String message = "CHECKOUT:" + username + ":" + catalogueController.getCheckOutList();
+                                String message = "CHECKOUT`" + username + "`" + catalogueController.getCheckOutList();
                                 try {
                                     sendToServer(message);
                                     catalogueController.setCheckOutList(new ArrayList<>());
@@ -381,7 +381,7 @@ public class Client extends Application {
                         }
                         else if(catalogueController.buttonPressed.equals("Return")){
                             if (catalogueController != null && catalogueController.getReturnList().length() != 0) {
-                                String message = "RETURN:" + username + ":" + catalogueController.getReturnList();
+                                String message = "RETURN`" + username + "`" + catalogueController.getReturnList();
                                 try {
                                     sendToServer(message);
                                     catalogueController.setReturnList(new ArrayList<>());
@@ -449,7 +449,7 @@ public class Client extends Application {
                     adminController = loader.getController();
                     if (adminController.buttonPressed.equals("AddNewEntry")) {
                         if (adminController != null && !Objects.equals(adminController.AddAuthor.getText(), "") && !Objects.equals(adminController.AddTitle.getText(), "") && !Objects.equals(adminController.AddGenre.getText(), "") && !Objects.equals(adminController.AddType.getText(), "") && !Objects.equals(adminController.NewCount.getText(), "") && !Objects.equals(adminController.AddDescription.getText(), "") && !Objects.equals(adminController.AddURL.getText(), "")) {
-                            String message = "ADDNEWENTRY:" + adminController.AddTitle.getText() + ":" + adminController.AddAuthor.getText() + ":" + adminController.AddGenre.getText() + ":" + adminController.AddType.getText() + ":" + adminController.NewCount.getText() + ":" + adminController.AddDescription.getText() + ":" + adminController.AddURL.getText();
+                            String message = "ADDNEWENTRY`" + adminController.AddTitle.getText() + "`" + adminController.AddAuthor.getText() + "`" + adminController.AddGenre.getText() + "`" + adminController.AddType.getText() + "`" + adminController.NewCount.getText() + "`" + adminController.AddDescription.getText() + "`" + adminController.AddURL.getText();
                             try {
                                 sendToServer(message);
                                 adminController.setAddTitleText("");

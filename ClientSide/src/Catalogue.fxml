@@ -130,7 +130,7 @@
                     </columns>
                   </TableView>
                   <ListView fx:id="CartList" layoutX="734.0" layoutY="482.0" onKeyPressed="#selectEntry" prefHeight="200.0" prefWidth="469.0" />
-                  <TextFlow fx:id="CartText" layoutX="14.0" layoutY="467.0" prefHeight="29.0" prefWidth="180.0" />
+                  <TextFlow fx:id="CartText" layoutX="734.0" layoutY="459.0" prefHeight="29.0" prefWidth="180.0" />
                   <Button fx:id="CheckoutEntryButton" layoutX="1046.0" layoutY="716.0" mnemonicParsing="false" onAction="#goToCheckout" prefHeight="61.0" prefWidth="138.0" text="Checkout" />
                   <Button fx:id="ResetEntryButton" layoutX="24.0" layoutY="716.0" mnemonicParsing="false" onAction="#ResetEntryButtonPressed" prefHeight="61.0" prefWidth="160.0" text="Clear Cart" />
                   <Button fx:id="DeleteEntryButton" layoutX="536.0" layoutY="716.0" mnemonicParsing="false" onAction="#DeleteEntryButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Delete Selected" />
