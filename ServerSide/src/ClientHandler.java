@@ -110,36 +110,37 @@ class ClientHandler implements Runnable, Observer {
             LoginInfo.IssuedItem item = new LoginInfo.IssuedItem(bookInfo[0], bookInfo[1], bookInfo[2]);
             issuedItems.add(item);
           }
-          StringBuilder sb = new StringBuilder();
-          for(LoginInfo.IssuedItem item : issuedItems){
-            sb.append(item.toString() + ";");
-          }
+            //convert issuedItems to a json string
+            Gson gson = new Gson();
+            String sb = gson.toJson(issuedItems);
           //send the username and the IssuedItem object to the server
-          server.processReturn(username, String.valueOf(sb), this);
+          server.processReturn(username, sb, this);
         }
         else if(input.startsWith("ADMINLOGIN")){
           String[] tokens = input.split(":");
           String username = tokens[1];
           String password = tokens[2];
           String ID = tokens[3];
-            typeOfClient = "ADMIN";
+          typeOfClient = "ADMIN";
           server.processAdminLogin(username, password, ID, this);
         }
         else if(input.startsWith("ADDNEWENTRY")){
-          //input will come in the form of ADDNEWENTRY:Title:Author:Genre:Type:Count
+          //input will come in the form of ADDNEWENTRY:Title:Author:Genre:Type:Count:Description:URL
             String[] tokens = input.split(":");
             String title = tokens[1];
             String author = tokens[2];
             String genre = tokens[3];
             String type = tokens[4];
+            String description = tokens[6];
+            String url = tokens[7];
             int count = Integer.parseInt(tokens[5]);
-            server.processAddNewEntry(title, author, genre, type, count, this);
+            server.processAddNewEntry(title, author, genre, type, count, description, url, this);
         }
         else if(input.startsWith("ADDCURRENTENTRY")){
           //input will come in the form of ADDCURRENTENTRY:Title:Count
             String[] tokens = input.split(":");
-            String title = tokens[1];
-            int count = Integer.parseInt(tokens[2]);
+            int count = Integer.parseInt(tokens[1]);
+            String title = tokens[2];
             server.processAddCurrentEntry(title, count, this);
         }
         else if(input.startsWith("REMOVE")){
@@ -178,10 +179,6 @@ class ClientHandler implements Runnable, Observer {
 
   private void updateBooks(Observable o, Object arg) {
     //send the updated books to the client
-//    HashMap<String, Entry> books = (HashMap<String, Entry>) arg;
-//    Gson gson = new Gson();
-//    String json = gson.toJson(books);
-//    sendToClient("UPDATEDBOOKS+" + json);
     sendToClient("UPDATELIBRARY+" + arg);
   }
 

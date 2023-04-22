@@ -241,11 +241,13 @@ class Server extends Observable {
     }
 
     public void processReturn(String username, String issuedItem, ClientHandler clientHandler ){
-        String[] items = issuedItem.split(";");
+        //issuedItem is a json string of an array of issued items
+        Gson gson = new Gson();
+        LoginInfo.IssuedItem[] items = gson.fromJson(issuedItem, LoginInfo.IssuedItem[].class);
         //loop through the items
-        for (String item : items) {
+        for (LoginInfo.IssuedItem item : items) {
             //split the item into name, issued date, and due date
-            String[] itemInfo = item.split(",");
+            String[] itemInfo = item.getItem().split(",");
             //check if the book is in the database
             if (books.containsKey(itemInfo[0])) {
                 //set the book to available
@@ -266,14 +268,15 @@ class Server extends Observable {
         }
         //send the updated books to the client
         //get the loginInfo from the username passed in
-        Gson gson = new Gson();
+        gson = new Gson();
         String json = gson.toJson(loginInfo.get(username));
         clientHandler.sendToClient("RETURNEDUSERNAME+" + json);
         json = gson.toJson(books);
         clientHandler.sendToClient("RETURNED+" + json);
         //have all the clients update their books using Observable
         setChanged();
-        notifyObservers("books" + json);
+        notifyObservers("books+" + json);
+        notifyObservers("loginInfo+" + json);
     }
 
     public void processAdminLogin(String username, String password, String ID, ClientHandler handler){
@@ -293,31 +296,32 @@ class Server extends Observable {
         }
     }
 
-    public void processAddNewEntry(String title, String author, String genre, String type, int count, ClientHandler clientHandler) {
+    public void processAddNewEntry(String title, String author, String genre, String type, int count, String description, String URL, ClientHandler clientHandler) {
         //check if the book is already in the database
         if (books.containsKey(title)) {
             clientHandler.sendToClient("BOOKALREADYEXISTS+" + title);
             //still add the count to the current number of count
             books.get(title).setCount(books.get(title).getCount() + count);
-            Document doc = new Document("title", title).append("genre", genre).append("author", author).append("available", "Yes").append("media_type", type).append("count", books.get(title).getCount());
+            Document doc = new Document("title", title).append("genre", genre).append("author", author).append("available", "Yes").append("media_type", type).append("count", books.get(title).getCount()).append("description", description).append("url", URL);
             entryCollection.updateOne(Filters.eq("title", title), new Document("$set", doc));
             //send the updated books to the client
             Gson gson = new Gson();
             String json = gson.toJson(books);
             //have all the clients update their books using Observable
             setChanged();
-            notifyObservers("books" + json);
+            notifyObservers("books+" + json);
         } else {
             //add the book to the database
-            books.put(title, new Entry(title, author, genre,"Yes",  type, count));
-            Document doc = new Document("title", title).append("genre", genre).append("author", author).append("available", "Yes").append("media_type", type).append("count", count);
+            books.put(title, new Entry(title, author, genre,"Yes",  type, count, description, URL));
+            Document doc = new Document("title", title).append("genre", genre).append("author", author).append("available", "Yes").append("media_type", type).append("count", count).append("description", description).append("url", URL);
             entryCollection.insertOne(doc);
             //send the updated books to the client
             Gson gson = new Gson();
             String json = gson.toJson(books);
             //have all the clients update their books using Observable
             setChanged();
-            notifyObservers("books" + json);
+            notifyObservers("books+" + json);
+            clientHandler.sendToClient("NEWBOOKADDED+" + title);
         }
     }
 
@@ -326,14 +330,19 @@ class Server extends Observable {
         if (books.containsKey(title)) {
             //add the book to the database
             books.get(title).setCount(books.get(title).getCount() + count);
-            Document doc = new Document("title", title).append("genre", books.get(title).getGenre()).append("author", books.get(title).getAuthor()).append("available", books.get(title).getAvailable()).append("media_type", books.get(title).getMedia_type()).append("count", books.get(title).getCount());
+            //set the book to available
+            books.get(title).setAvailable("Yes");
+            //update this particular book in the database
+            //book has a title, genre, author, available, media_type, count, url, and description
+            Document doc = new Document("title", title).append("genre", books.get(title).getGenre()).append("author", books.get(title).getAuthor()).append("available", books.get(title).getAvailable()).append("media_type", books.get(title).getMedia_type()).append("count", books.get(title).getCount()).append("url", books.get(title).getUrl()).append("description", books.get(title).getDescription());
             entryCollection.updateOne(Filters.eq("title", books.get(title).getTitle()), new Document("$set", doc));
             //send the updated books to the client
             Gson gson = new Gson();
             String json = gson.toJson(books);
             //have all the clients update their books using Observable
             setChanged();
-            notifyObservers("books" + json);
+            notifyObservers("books+" + json);
+            clientHandler.sendToClient("CURRENTBOOKADDED+" + title);
         } else {
             clientHandler.sendToClient("BOOKDOESNOTEXIST+" + title);
         }
@@ -367,6 +376,7 @@ class Server extends Observable {
             json = gson.toJson(loginInfo);
             setChanged();
             notifyObservers("loginInfo+" + json);
+            clientHandler.sendToClient("BOOKREMOVED+" + title);
         } else {
             clientHandler.sendToClient("BOOKDOESNOTEXIST+" + title);
         }

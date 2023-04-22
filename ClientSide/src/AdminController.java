@@ -46,10 +46,10 @@ public class AdminController implements Initializable {
     private Button ClearButton;
 
     @FXML
-    private ComboBox<String> EntriesDropDown;
+    ComboBox<String> EntriesDropDown;
 
     @FXML
-    private TextField ExistingCount;
+    TextField ExistingCount;
 
     @FXML
     private StackPane MainInterface;
@@ -97,6 +97,10 @@ public class AdminController implements Initializable {
     private TableView<LoginInfo> UserTableView;
     @FXML
     private Button ShowPasswordButton;
+    @FXML
+    TextField AddDescription;
+    @FXML
+    TextField AddURL;
 
     private Client client;
     private String username;
@@ -362,5 +366,30 @@ public class AdminController implements Initializable {
 
     public void setButtonPressed(String s) {
         buttonPressed = s;
+    }
+
+    public void newBookAdded() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText("Success");
+        alert.setContentText("New Book Added");
+        alert.showAndWait();
+    }
+
+    public void currentBookAdded() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText("Success");
+        alert.setContentText("Current Book Added");
+        alert.showAndWait();
+    }
+
+
+    public void bookRemoved() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText("Success");
+        alert.setContentText("Book Removed");
+        alert.showAndWait();
     }
 }

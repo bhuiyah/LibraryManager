@@ -36,9 +36,11 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -127,9 +129,9 @@
                         <TableColumn fx:id="TypeView" prefWidth="101.0" text="Type" />
                     </columns>
                   </TableView>
-                  <ListView fx:id="CartList" layoutX="16.0" layoutY="496.0" onKeyPressed="#selectEntry" prefHeight="200.0" prefWidth="1189.0" />
+                  <ListView fx:id="CartList" layoutX="734.0" layoutY="482.0" onKeyPressed="#selectEntry" prefHeight="200.0" prefWidth="469.0" />
                   <TextFlow fx:id="CartText" layoutX="14.0" layoutY="467.0" prefHeight="29.0" prefWidth="180.0" />
-                  <Button fx:id="CheckoutEntryButton" layoutX="1046.0" layoutY="716.0" mnemonicParsing="false" onAction="#goToCheckout" prefHeight="61.0" prefWidth="138.0" text="CheckoutEntryButton" />
+                  <Button fx:id="CheckoutEntryButton" layoutX="1046.0" layoutY="716.0" mnemonicParsing="false" onAction="#goToCheckout" prefHeight="61.0" prefWidth="138.0" text="Checkout" />
                   <Button fx:id="ResetEntryButton" layoutX="24.0" layoutY="716.0" mnemonicParsing="false" onAction="#ResetEntryButtonPressed" prefHeight="61.0" prefWidth="160.0" text="Clear Cart" />
                   <Button fx:id="DeleteEntryButton" layoutX="536.0" layoutY="716.0" mnemonicParsing="false" onAction="#DeleteEntryButtonPressed" prefHeight="61.0" prefWidth="152.0" text="Delete Selected" />
                   <Button fx:id="ResetSearch" layoutX="1115.0" layoutY="39.0" mnemonicParsing="false" onAction="#ResetSearchPressed" prefHeight="25.0" prefWidth="88.0" text="Reset" />
@@ -137,6 +139,16 @@
                   <Button fx:id="ApplyFilterButton" layoutX="415.0" layoutY="74.0" mnemonicParsing="false" onAction="#FilterButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Apply" />
                   <ComboBox fx:id="FilterTypeDropDown" layoutX="219.0" layoutY="74.0" prefHeight="25.0" prefWidth="191.0" promptText="Filter Type" />
                   <Button fx:id="ResetFilterButton" layoutX="510.0" layoutY="74.0" mnemonicParsing="false" onAction="#ResetFilterButtonPressed" prefHeight="25.0" prefWidth="88.0" text="Reset Filter" />
+                  <Pane fx:id="IDPane" layoutX="14.0" layoutY="482.0" prefHeight="200.0" prefWidth="703.0">
+                     <children>
+                        <ImageView fx:id="Image" fitHeight="200.0" fitWidth="138.0" pickOnBounds="true" preserveRatio="true" />
+                        <ScrollPane fx:id="DScroll" layoutX="137.0" prefHeight="200.0" prefWidth="573.0">
+                           <content>
+                              <TextFlow fx:id="Description" prefHeight="200.0" prefWidth="515.0" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </Pane>
                </children>
             </Pane>
          </children>

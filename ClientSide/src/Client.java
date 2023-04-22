@@ -164,6 +164,11 @@ public class Client extends Application {
                             loginInfo = gson.fromJson(log, LoginInfo.class);
                             catalogueController.setLoginInfo(loginInfo);
                             catalogueController.populateCurrentlyIssuedList();
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.setEntries(books);
+                                });
+                            }
                         } else if (input.startsWith("RETURNED+")) {
                             String[] split = input.split("\\+");
                             String lib = split[1];
@@ -231,6 +236,30 @@ public class Client extends Application {
                             if(adminController != null){
                                 Platform.runLater(() -> {
                                     adminController.setLoginInfo(loginInfoHashMap);
+                                });
+                            }
+                        }
+                        else if(input.startsWith("NEWBOOKADDED+")){
+                            //alert the admin page that a new book has been added
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.newBookAdded();
+                                });
+                            }
+                        }
+                        else if(input.startsWith("CURRENTBOOKADDED+")){
+                            //alert the admin page that a new book has been added
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.currentBookAdded();
+                                });
+                            }
+                        }
+                        else if(input.startsWith("BOOKREMOVED+")){
+                            //alert the admin page that a book has been removed
+                            if(adminController != null){
+                                Platform.runLater(() -> {
+                                    adminController.bookRemoved();
                                 });
                             }
                         }
@@ -419,8 +448,8 @@ public class Client extends Application {
                 while (!socket.isClosed()) {
                     adminController = loader.getController();
                     if (adminController.buttonPressed.equals("AddNewEntry")) {
-                        if (adminController != null && !Objects.equals(adminController.AddAuthor.getText(), "") && !Objects.equals(adminController.AddTitle.getText(), "") && !Objects.equals(adminController.AddGenre.getText(), "") && !Objects.equals(adminController.AddType.getText(), "") && !Objects.equals(adminController.NewCount.getText(), "")) {
-                            String message = "ADDNEWENTRY:" + adminController.AddTitle.getText() + ":" + adminController.AddAuthor.getText() + ":" + adminController.AddGenre.getText() + ":" + adminController.AddType.getText() + ":" + adminController.NewCount.getText();
+                        if (adminController != null && !Objects.equals(adminController.AddAuthor.getText(), "") && !Objects.equals(adminController.AddTitle.getText(), "") && !Objects.equals(adminController.AddGenre.getText(), "") && !Objects.equals(adminController.AddType.getText(), "") && !Objects.equals(adminController.NewCount.getText(), "") && !Objects.equals(adminController.AddDescription.getText(), "") && !Objects.equals(adminController.AddURL.getText(), "")) {
+                            String message = "ADDNEWENTRY:" + adminController.AddTitle.getText() + ":" + adminController.AddAuthor.getText() + ":" + adminController.AddGenre.getText() + ":" + adminController.AddType.getText() + ":" + adminController.NewCount.getText() + ":" + adminController.AddDescription.getText() + ":" + adminController.AddURL.getText();
                             try {
                                 sendToServer(message);
                                 adminController.setAddTitleText("");
@@ -435,12 +464,12 @@ public class Client extends Application {
                         }
                     }
                     else if(adminController.buttonPressed.equals("AddCurrentEntry")){
-                        if(adminController != null && !Objects.equals(adminController.getExistingCountText(), "") && !Objects.equals(adminController.getDropDownValue(), "")){
-                            String message = "ADDCURRENTENTRY:" + adminController.getDropDownValue() + ":" + adminController.getExistingCountText();
+                        if(adminController != null && !Objects.equals(adminController.ExistingCount.getText(), "") && !Objects.equals(adminController.EntriesDropDown.getValue(), "")){
+                            String message = "ADDCURRENTENTRY:" + adminController.ExistingCount.getText() + ":" + adminController.EntriesDropDown.getValue();
                             try {
                                 sendToServer(message);
                                 adminController.setExistingCountText("");
-                                adminController.setDropDownValue(null);
+                                //reset the drop down menu
                                 adminController.setButtonPressed("");
                             } catch (IOException e) {
                                 throw new RuntimeException(e);

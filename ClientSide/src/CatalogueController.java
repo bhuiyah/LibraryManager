@@ -3,14 +3,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
+import javafx.scene.image.Image;
 import java.time.LocalDate;
 
 import java.net.URL;
@@ -25,6 +33,8 @@ public class CatalogueController implements Initializable {
     Client client;
     String buttonPressed = "";
     ArrayList<LoginInfo.IssuedItem> returnList = new ArrayList<>();
+    Stage pictureStage;
+    PictureController pictureController;
 
     @FXML
     private TextFlow TopBar;
@@ -128,6 +138,14 @@ public class CatalogueController implements Initializable {
     private Button ApplyFilterButton;
     @FXML
     private Button ResetFilterButton;
+    @FXML
+    private ImageView Image;
+    @FXML
+    private TextFlow Description;
+    @FXML
+    private Pane IDPane;
+    @FXML
+    private ScrollPane DScroll;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -142,10 +160,10 @@ public class CatalogueController implements Initializable {
             }
         });
         CartList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        CartText.getChildren().add(new javafx.scene.text.Text("Your Cart:"));
-        CurrentlyIssuedLabel.getChildren().add(new javafx.scene.text.Text("Currently Checked Out:"));
+        CartText.getChildren().add(new Text("Your Cart:"));
+        CurrentlyIssuedLabel.getChildren().add(new Text("Currently Checked Out:"));
         CartListToCheckOut.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        ReturnText.getChildren().add(new javafx.scene.text.Text("Items Returning:"));
+        ReturnText.getChildren().add(new Text("Items Returning:"));
         ReturnCart.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ReturnCart.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
@@ -170,6 +188,31 @@ public class CatalogueController implements Initializable {
         LateFeeView.setStyle("-fx-alignment: CENTER;");
         TitleReturnCart.setStyle("-fx-alignment: CENTER;");
         FeeReturnCart.setStyle("-fx-alignment: CENTER;");
+        //remove the tableview scroll bars
+        DScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        DScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        //remove the scroll bars from the DScroll pane
+        DScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        DScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        //have a listener for each column of the tableview so that when i hover over it, i can get the row's data
+        TableView.setRowFactory(tv -> {
+            TableRow<Entry> row = new TableRow<>();
+            row.setOnMouseEntered(event -> {
+                if(row.getItem() != null) {
+                    Entry entry = row.getItem();
+                    //set the picture
+                    //get the tableview item's url and description when i hover over it
+                    String url = entry.getUrl();
+                    String description = entry.getDescription();
+                    //set the image from the url
+                    Image.setImage(new Image(url));
+                    //set the description
+                    Description.getChildren().clear();
+                    Description.getChildren().add(new Text(description));
+                }
+            });
+            return row;
+        });
 
     }
 
@@ -533,7 +576,8 @@ public class CatalogueController implements Initializable {
                         setStyle("");
                     } else {
                         setText(item);
-                        if (Integer.parseInt(item.substring(1)) > 0) {
+                        //the item is in the form of $0.0, so we have to convert it to a double
+                        if(Double.parseDouble(item.substring(1)) > 0){
                             setStyle("-fx-text-fill: red;");
                         } else {
                             setStyle("-fx-text-fill: green;");
@@ -629,14 +673,34 @@ public class CatalogueController implements Initializable {
         //if the genre is not null, filter the list by genre and type
         if(genre != null || type != null){
             //populate the tableview with items that match the genre and type
-            TableView.getItems().clear();
+            //if the genre is null, filter the list by type
             ObservableList<Entry> data = FXCollections.observableArrayList();
-            for(Entry item : entries.values()){
-                if(item.getGenre().equals(genre) && item.getMedia_type().equals(type)){
-                    data.add(item);
-                }
-            }
             TableView.getItems().addAll(data);
+            //add all the items to the list
+            data.addAll(entries.values());
+            if(genre == null){
+                data.clear();
+                TableView.getItems().clear();
+                data = FXCollections.observableArrayList();
+                for(Entry item : entries.values()){
+                    if(item.getMedia_type().equals(type)){
+                        data.add(item);
+                    }
+                }
+                TableView.getItems().addAll(data);
+            }
+            //if the type is null, filter the list by genre
+            if(type == null){
+                TableView.getItems().clear();
+                data.clear();
+                data = FXCollections.observableArrayList();
+                for(Entry item : entries.values()){
+                    if(item.getGenre().equals(genre)){
+                        data.add(item);
+                    }
+                }
+                TableView.getItems().addAll(data);
+            }
             //set each column of the tableview to the corresponding item in the list
             TitleView.setCellValueFactory(new PropertyValueFactory<>("title"));
             GenreView.setCellValueFactory(new PropertyValueFactory<>("genre"));

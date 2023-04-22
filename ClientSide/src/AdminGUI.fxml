@@ -56,8 +56,8 @@
                   <TextField fx:id="AddAuthor" layoutX="446.0" layoutY="470.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Author" />
                   <TextField fx:id="AddGenre" layoutX="446.0" layoutY="516.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Genre" />
                   <TextField fx:id="AddType" layoutX="446.0" layoutY="561.0" prefHeight="25.0" prefWidth="340.0" promptText="Entry Type" />
-                  <Button fx:id="AddNewButton" layoutX="502.0" layoutY="653.0" mnemonicParsing="false" onAction="#AddNewButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Add" />
-                  <Button fx:id="ClearButton" layoutX="652.0" layoutY="653.0" mnemonicParsing="false" onAction="#ClearButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Clear" />
+                  <Button fx:id="AddNewButton" layoutX="503.0" layoutY="737.0" mnemonicParsing="false" onAction="#AddNewButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Add" />
+                  <Button fx:id="ClearButton" layoutX="653.0" layoutY="737.0" mnemonicParsing="false" onAction="#ClearButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Clear" />
                   <Label alignment="CENTER" layoutX="446.0" layoutY="149.0" prefHeight="74.0" prefWidth="340.0" text="Add An Entry to the Library" />
                   <ComboBox fx:id="EntriesDropDown" layoutX="446.0" layoutY="256.0" prefHeight="25.0" prefWidth="340.0" promptText="Find Exisiting Entries" />
                   <Label alignment="CENTER" layoutX="541.0" layoutY="215.0" prefHeight="17.0" prefWidth="150.0" text="Add Exisiting Entry" />
@@ -65,6 +65,8 @@
                   <TextField fx:id="ExistingCount" layoutX="446.0" layoutY="298.0" prefHeight="25.0" prefWidth="340.0" promptText="How Many?" />
                   <TextField fx:id="NewCount" layoutX="446.0" layoutY="609.0" prefHeight="25.0" prefWidth="340.0" promptText="How Many?" />
                   <Button fx:id="AddCurrentButton" layoutX="577.0" layoutY="332.0" mnemonicParsing="false" onAction="#AddCurrentButtonPressed" prefHeight="39.0" prefWidth="79.0" text="Add" />
+                  <TextField fx:id="AddDescription" layoutX="447.0" layoutY="654.0" prefHeight="25.0" prefWidth="340.0" promptText="Provide a Description" />
+                  <TextField fx:id="AddURL" layoutX="447.0" layoutY="700.0" prefHeight="25.0" prefWidth="340.0" promptText="Provide Picture URL" />
                </children>
             </Pane>
          </children>
