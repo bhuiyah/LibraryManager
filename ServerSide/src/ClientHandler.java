@@ -125,7 +125,6 @@ class ClientHandler implements Runnable, Observer {
           server.processAdminLogin(username, password, ID, this);
         }
         else if(input.startsWith("ADDNEWENTRY")){
-          //input will come in the form of ADDNEWENTRY:Title:Author:Genre:Type:Count:Description:URL
             String[] tokens = input.split("`");
             String title = tokens[1];
             String author = tokens[2];

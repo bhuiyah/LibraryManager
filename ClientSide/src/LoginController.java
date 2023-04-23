@@ -58,7 +58,69 @@ public class LoginController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         MainInterface.getChildren().clear();
         MainInterface.getChildren().add(LoginScreen);
+        //when the mouse is above any of the LoginButton, RegisterButton, or GoToAdminLogin buttons, the text will change to #C0392B and back to  #EC7063 when the mouse is not hovering over the button
+        LoginButton.setOnMouseEntered(event -> {
+            LoginButton.setStyle("-fx-background-color: #C0392B");
+        });
+        LoginButton.setOnMouseExited(event -> {
+            LoginButton.setStyle("-fx-background-color: #EC7063");
+        });
+        RegisterButton.setOnMouseEntered(event -> {
+            RegisterButton.setStyle("-fx-background-color: #C0392B");
+        });
+        RegisterButton.setOnMouseExited(event -> {
+            RegisterButton.setStyle("-fx-background-color: #EC7063");
+        });
+        GoToAdminLogin.setOnMouseEntered(event -> {
+            GoToAdminLogin.setStyle("-fx-background-color: #C0392B");
+        });
+        GoToAdminLogin.setOnMouseExited(event -> {
+            GoToAdminLogin.setStyle("-fx-background-color: #EC7063");
+        });
+        AdminBackButton.setOnMouseEntered(event -> {
+            AdminBackButton.setStyle("-fx-background-color: #C0392B");
+        });
+        AdminBackButton.setOnMouseExited(event -> {
+            AdminBackButton.setStyle("-fx-background-color: #EC7063");
+        });
+        AdminLoginButton.setOnMouseEntered(event -> {
+            AdminLoginButton.setStyle("-fx-background-color: #C0392B");
+        });
+        AdminLoginButton.setOnMouseExited(event -> {
+            AdminLoginButton.setStyle("-fx-background-color: #EC7063");
+        });
 
+        //change the mouse cursor to a hand when hovering over the buttons
+        LoginButton.setCursor(javafx.scene.Cursor.HAND);
+        RegisterButton.setCursor(javafx.scene.Cursor.HAND);
+        GoToAdminLogin.setCursor(javafx.scene.Cursor.HAND);
+        AdminBackButton.setCursor(javafx.scene.Cursor.HAND);
+        AdminLoginButton.setCursor(javafx.scene.Cursor.HAND);
+
+        //when the mouse is clicked on the username or password text fields, the color of the background will change to #C0392B. when another text field is clicked, the color will change back to #EC7063
+        UserTextField.setOnMouseClicked(event -> {
+            UserTextField.setStyle("-fx-background-color: #F1948A");
+            PassTextField.setStyle("-fx-background-color: #EC7063");
+        });
+        PassTextField.setOnMouseClicked(event -> {
+            PassTextField.setStyle("-fx-background-color: #F1948A");
+            UserTextField.setStyle("-fx-background-color: #EC7063");
+        });
+        AdminUserField.setOnMouseClicked(event -> {
+            AdminUserField.setStyle("-fx-background-color: #F1948A");
+            AdminPassField.setStyle("-fx-background-color: #EC7063");
+            IDAdminField.setStyle("-fx-background-color: #EC7063");
+        });
+        AdminPassField.setOnMouseClicked(event -> {
+            AdminPassField.setStyle("-fx-background-color: #F1948A");
+            AdminUserField.setStyle("-fx-background-color: #EC7063");
+            IDAdminField.setStyle("-fx-background-color: #EC7063");
+        });
+        IDAdminField.setOnMouseClicked(event -> {
+            IDAdminField.setStyle("-fx-background-color: #F1948A");
+            AdminUserField.setStyle("-fx-background-color: #EC7063");
+            AdminPassField.setStyle("-fx-background-color: #EC7063");
+        });
     }
 
     public void LoginSelected() {

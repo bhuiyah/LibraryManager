@@ -5,6 +5,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -36,7 +37,7 @@ public class CatalogueController implements Initializable {
     ArrayList<LoginInfo.IssuedItem> returnList = new ArrayList<>();
 
     @FXML
-    private TextFlow TopBar;
+    private TextFlow User;
     @FXML
     private Button CheckOutButton;
     @FXML
@@ -53,10 +54,6 @@ public class CatalogueController implements Initializable {
     private TableColumn<Entry, String> GenreView;
     @FXML
     private TableColumn<Entry, String> CheckedOutView;
-    @FXML
-    private Pane DashPane;
-    @FXML
-    private Button DashButton;
     @FXML
     private ListView<String> CartList;
     @FXML
@@ -76,8 +73,6 @@ public class CatalogueController implements Initializable {
     @FXML
     private TextFlow CurrentlyIssuedLabel;
     @FXML
-    private ListView<String> CurrentlyIssuedList;
-    @FXML
     private Button BackButtonOnCheckOutScreen;
     @FXML
     private javafx.scene.control.TableView<LoginInfo.IssuedItem> CartListToCheckOut;
@@ -88,7 +83,7 @@ public class CatalogueController implements Initializable {
     @FXML
     private TableColumn<String, String> StartDateOnFinalList;
     @FXML
-    private Button FinalizeCheckOutButton;
+    private Button FinalizeCheckoutButton;
     @FXML
     private Pane FinalizeScreen;
     @FXML
@@ -145,13 +140,15 @@ public class CatalogueController implements Initializable {
     private Pane IDPane;
     @FXML
     private ScrollPane DScroll;
+    @FXML
+    private Button ExitButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Catalogue Controller Initialized");
         //set the maininterface pane to the dashboard pane
         MainInterfacePane.getChildren().clear();
-        MainInterfacePane.getChildren().add(DashPane);
+        MainInterfacePane.getChildren().add(CheckOutPane);
         CartList.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 String selectedItem = CartList.getSelectionModel().getSelectedItem();
@@ -160,7 +157,6 @@ public class CatalogueController implements Initializable {
         });
         CartList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         CartText.getChildren().add(new Text("Your Cart:"));
-        CurrentlyIssuedLabel.getChildren().add(new Text("Currently Checked Out:"));
         CartListToCheckOut.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ReturnText.getChildren().add(new Text("Items Returning:"));
         ReturnCart.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -213,26 +209,137 @@ public class CatalogueController implements Initializable {
             return row;
         });
 
+        //when the mouse is above any of the the ResetEntryButton, DeleteEntryButton, or CheckoutEntryButton, change the button color to #A2D9CE
+        ResetEntryButton.setOnMouseEntered(event -> {
+            ResetEntryButton.setStyle("-fx-background-color: #A2D9CE");
+        });
+        ResetEntryButton.setOnMouseExited(event -> {
+            ResetEntryButton.setStyle("-fx-background-color: #E8F8F5");
+        });
+
+        DeleteEntryButton.setOnMouseEntered(event -> {
+            DeleteEntryButton.setStyle("-fx-background-color: #A2D9CE");
+
+        });
+        DeleteEntryButton.setOnMouseExited(event -> {
+            DeleteEntryButton.setStyle("-fx-background-color: #E8F8F5");
+        });
+        CheckoutEntryButton.setOnMouseEntered(event -> {
+            CheckoutEntryButton.setStyle("-fx-background-color: #A2D9CE");
+
+        });
+        CheckoutEntryButton.setOnMouseExited(event -> {
+            CheckoutEntryButton.setStyle("-fx-background-color: #E8F8F5");
+        });
+        SearchButton.setOnMouseEntered(event -> {
+            SearchButton.setStyle("-fx-background-color: #A2D9CE");
+        });
+        SearchButton.setOnMouseExited(event -> {
+            SearchButton.setStyle("-fx-background-color: #E8F8F5");
+        });
+        ResetSearch.setOnMouseEntered(event -> {
+            ResetSearch.setStyle("-fx-background-color: #A2D9CE");
+        });
+        ResetSearch.setOnMouseExited(event -> {
+            ResetSearch.setStyle("-fx-background-color: #E8F8F5");
+        });
+        ApplyFilterButton.setOnMouseEntered(event -> {
+            ApplyFilterButton.setStyle("-fx-background-color: #A2D9CE");
+        });
+        ApplyFilterButton.setOnMouseExited(event -> {
+            ApplyFilterButton.setStyle("-fx-background-color: #E8F8F5");
+        });
+        ResetFilterButton.setOnMouseEntered(event -> {
+            ResetFilterButton.setStyle("-fx-background-color: #A2D9CE");
+        });
+        ResetFilterButton.setOnMouseExited(event -> {
+            ResetFilterButton.setStyle("-fx-background-color: #E8F8F5");
+        });
+        //change the cursor to a hand when the mouse is over the buttons
+        ResetEntryButton.setCursor(Cursor.HAND);
+        DeleteEntryButton.setCursor(Cursor.HAND);
+        CheckoutEntryButton.setCursor(Cursor.HAND);
+        ResetButtonReturn.setCursor(Cursor.HAND);
+        SearchButton.setCursor(Cursor.HAND);
+        ResetSearch.setCursor(Cursor.HAND);
+        ApplyFilterButton.setCursor(Cursor.HAND);
+        ResetFilterButton.setCursor(Cursor.HAND);
+
+        //when i hover over the CheckoutButton, ReturnButton, and Exit Button change the color to #AED6F1 and when i exit, change it back to  #EAF2F8
+        CheckOutButton.setOnMouseEntered(event -> {
+            CheckOutButton.setStyle("-fx-background-color: #AED6F1");
+        });
+        CheckOutButton.setOnMouseExited(event -> {
+            CheckOutButton.setStyle("-fx-background-color: #EAF2F8");
+        });
+        ReturnButton.setOnMouseEntered(event -> {
+            ReturnButton.setStyle("-fx-background-color: #AED6F1");
+        });
+        ReturnButton.setOnMouseExited(event -> {
+            ReturnButton.setStyle("-fx-background-color: #EAF2F8");
+        });
+        ExitButton.setOnMouseEntered(event -> {
+            ExitButton.setStyle("-fx-background-color: #AED6F1");
+        });
+        ExitButton.setOnMouseExited(event -> {
+            ExitButton.setStyle("-fx-background-color: #EAF2F8");
+        });
+        //change the cursor to a hand when the mouse is over the buttons
+        CheckOutButton.setCursor(Cursor.HAND);
+        ReturnButton.setCursor(Cursor.HAND);
+        ExitButton.setCursor(Cursor.HAND);
+
+        //when i hover over the ResetButtonReturn, ClearSelectedReturnButton, and FinalizeReturnButton change the color to #E6B0AA and when i exit, change it back to  #F9EBEA
+        ResetButtonReturn.setOnMouseEntered(event -> {
+            ResetButtonReturn.setStyle("-fx-background-color: #E6B0AA");
+        });
+        ResetButtonReturn.setOnMouseExited(event -> {
+            ResetButtonReturn.setStyle("-fx-background-color: #F9EBEA");
+        });
+        ClearSelectedReturnButton.setOnMouseEntered(event -> {
+            ClearSelectedReturnButton.setStyle("-fx-background-color: #E6B0AA");
+        });
+        ClearSelectedReturnButton.setOnMouseExited(event -> {
+            ClearSelectedReturnButton.setStyle("-fx-background-color: #F9EBEA");
+        });
+        FinalizeReturnButton.setOnMouseEntered(event -> {
+            FinalizeReturnButton.setStyle("-fx-background-color: #E6B0AA");
+        });
+        FinalizeReturnButton.setOnMouseExited(event -> {
+            FinalizeReturnButton.setStyle("-fx-background-color: #F9EBEA");
+        });
+        //change the cursor to a hand when the mouse is over the buttons
+        ResetButtonReturn.setCursor(Cursor.HAND);
+        ClearSelectedReturnButton.setCursor(Cursor.HAND);
+        FinalizeReturnButton.setCursor(Cursor.HAND);
+
+        //when i hover over the BackButtonOnCheckOutScreen, FinalizeScreenDeleteButton, and FinalizeCheckoutButton change the color to #C39BD3 and when i exit, change it back to  #F4ECF7
+        BackButtonOnCheckOutScreen.setOnMouseEntered(event -> {
+            BackButtonOnCheckOutScreen.setStyle("-fx-background-color: #C39BD3");
+        });
+        BackButtonOnCheckOutScreen.setOnMouseExited(event -> {
+            BackButtonOnCheckOutScreen.setStyle("-fx-background-color: #F4ECF7");
+        });
+        FinalizeScreenDeleteButton.setOnMouseEntered(event -> {
+            FinalizeScreenDeleteButton.setStyle("-fx-background-color: #C39BD3");
+        });
+        FinalizeScreenDeleteButton.setOnMouseExited(event -> {
+            FinalizeScreenDeleteButton.setStyle("-fx-background-color: #F4ECF7");
+        });
+        FinalizeCheckoutButton.setOnMouseEntered(event -> {
+            FinalizeCheckoutButton.setStyle("-fx-background-color: #C39BD3");
+        });
+        FinalizeCheckoutButton.setOnMouseExited(event -> {
+            FinalizeCheckoutButton.setStyle("-fx-background-color: #F4ECF7");
+        });
+        //change the cursor to a hand when the mouse is over the buttons
+        BackButtonOnCheckOutScreen.setCursor(Cursor.HAND);
+        FinalizeScreenDeleteButton.setCursor(Cursor.HAND);
+        FinalizeCheckoutButton.setCursor(Cursor.HAND);
     }
 
     public void setClient(Client client){
         this.client = client;
-    }
-
-    public void DashButtonPressed(){
-        System.out.println("Dashboard Button Pressed");
-        //put dashboard pane on top of main interface pane
-        MainInterfacePane.getChildren().clear();
-        MainInterfacePane.getChildren().add(DashPane);
-        CurrentlyIssuedList.getItems().clear();
-        populateCurrentlyIssuedList();
-    }
-
-    public void populateCurrentlyIssuedList(){
-        CurrentlyIssuedList.getItems().clear();
-        for (LoginInfo.IssuedItem item : loginInfo.getIssuedItems()){
-            CurrentlyIssuedList.getItems().add(item.getItem());
-        }
     }
 
     public void CheckOutEntryButtonPressed(){
@@ -243,10 +350,9 @@ public class CatalogueController implements Initializable {
 
     public void setUserName(String UserName){
         this.UserName = UserName;
-    }
-
-    public void setTopBar(){
-        TopBar.getChildren().add(new javafx.scene.text.Text("Welcome " + UserName));
+        //set user to userName
+        User.getChildren().clear();
+        User.getChildren().add(new Text(UserName));
     }
 
     public void setEntries(HashMap<String, Entry> entries){
@@ -509,7 +615,7 @@ public class CatalogueController implements Initializable {
         CartListToCheckOut.getItems().clear();
         //put the main interface pane on top of the checkout pane
         MainInterfacePane.getChildren().clear();
-        MainInterfacePane.getChildren().add(DashPane);
+        MainInterfacePane.getChildren().add(CheckOutPane);
         //alert the user that the checkout was successful
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Checkout Complete");
@@ -636,7 +742,7 @@ public class CatalogueController implements Initializable {
         ReturnView.getItems().clear();
         //put the main interface pane on top of the return pane
         MainInterfacePane.getChildren().clear();
-        MainInterfacePane.getChildren().add(DashPane);
+        MainInterfacePane.getChildren().add(ReturnScreen);
         //alert the user that the return was successful
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Return Complete");

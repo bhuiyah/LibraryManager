@@ -2,6 +2,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -76,9 +77,6 @@ public class AdminController implements Initializable {
     private Pane RemoveEntriesPane;
 
     @FXML
-    private Button RemoveUserButton;
-
-    @FXML
     private TableView<Entry> RemoveTableView;
 
     @FXML
@@ -151,6 +149,39 @@ public class AdminController implements Initializable {
                 return row;
             }
         });
+        //when i hover over my AddEntriesButton, RemoveEntriesButton, ManageUsersButton, or AdminExitButton, the background color changes to #76448A and when i exit the button, the background color changes back to  #BB8FCE
+        AddEntriesButton.setOnMouseEntered(event -> AddEntriesButton.setStyle("-fx-background-color: #76448A;"));
+        AddEntriesButton.setOnMouseExited(event -> AddEntriesButton.setStyle("-fx-background-color: #BB8FCE;"));
+        RemoveEntriesButton.setOnMouseEntered(event -> RemoveEntriesButton.setStyle("-fx-background-color: #76448A;"));
+        RemoveEntriesButton.setOnMouseExited(event -> RemoveEntriesButton.setStyle("-fx-background-color: #BB8FCE;"));
+        ManageUsersButton.setOnMouseEntered(event -> ManageUsersButton.setStyle("-fx-background-color: #76448A;"));
+        ManageUsersButton.setOnMouseExited(event -> ManageUsersButton.setStyle("-fx-background-color: #BB8FCE;"));
+        AdminExitButton.setOnMouseEntered(event -> AdminExitButton.setStyle("-fx-background-color: #76448A;"));
+        AdminExitButton.setOnMouseExited(event -> AdminExitButton.setStyle("-fx-background-color: #BB8FCE;"));
+
+        //change every other button to #F5B7B1 when i hover over it and back to  #F9EBEA when i exit it
+        AddCurrentButton.setOnMouseEntered(event -> AddCurrentButton.setStyle("-fx-background-color: #F5B7B1;"));
+        AddCurrentButton.setOnMouseExited(event -> AddCurrentButton.setStyle("-fx-background-color: #F9EBEA;"));
+        AddNewButton.setOnMouseEntered(event -> AddNewButton.setStyle("-fx-background-color: #F5B7B1;"));
+        AddNewButton.setOnMouseExited(event -> AddNewButton.setStyle("-fx-background-color: #F9EBEA;"));
+        ClearButton.setOnMouseEntered(event -> ClearButton.setStyle("-fx-background-color: #F5B7B1;"));
+        ClearButton.setOnMouseExited(event -> ClearButton.setStyle("-fx-background-color: #F9EBEA;"));
+        RemoveButton.setOnMouseEntered(event -> RemoveButton.setStyle("-fx-background-color: #F5B7B1;"));
+        RemoveButton.setOnMouseExited(event -> RemoveButton.setStyle("-fx-background-color: #F9EBEA;"));
+        ShowPasswordButton.setOnMouseEntered(event -> ShowPasswordButton.setStyle("-fx-background-color: #F5B7B1;"));
+        ShowPasswordButton.setOnMouseExited(event -> ShowPasswordButton.setStyle("-fx-background-color: #F9EBEA;"));
+
+        //when i hover over a button change my cursor to a hand
+        AddEntriesButton.setCursor(Cursor.HAND);
+        RemoveEntriesButton.setCursor(Cursor.HAND);
+        ManageUsersButton.setCursor(Cursor.HAND);
+        AdminExitButton.setCursor(Cursor.HAND);
+        AddCurrentButton.setCursor(Cursor.HAND);
+        AddNewButton.setCursor(Cursor.HAND);
+        ClearButton.setCursor(Cursor.HAND);
+        RemoveButton.setCursor(Cursor.HAND);
+        ShowPasswordButton.setCursor(Cursor.HAND);
+        
     }
 
     public void setClient(Client client) {

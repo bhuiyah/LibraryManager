@@ -133,7 +133,6 @@ public class Client extends Application {
                             Gson gson = new Gson();
                             loginInfo = gson.fromJson(log, LoginInfo.class);
                             catalogueController.setLoginInfo(loginInfo);
-                            catalogueController.populateCurrentlyIssuedList();
                         } else if (input.startsWith("UPDATELIBRARY+")) {
                             String[] split = input.split("\\+");
                             String lib = split[1];
@@ -163,7 +162,6 @@ public class Client extends Application {
                             Gson gson = new Gson();
                             loginInfo = gson.fromJson(log, LoginInfo.class);
                             catalogueController.setLoginInfo(loginInfo);
-                            catalogueController.populateCurrentlyIssuedList();
                             if(adminController != null){
                                 Platform.runLater(() -> {
                                     adminController.setEntries(books);
@@ -340,10 +338,8 @@ public class Client extends Application {
                 catalogueController = loader.getController();
                 catalogueController.setClient(this);
                 catalogueController.setUserName(username);
-                catalogueController.setTopBar();
                 catalogueController.setEntries(books);
                 catalogueController.setLoginInfo(loginInfo);
-                catalogueController.populateCurrentlyIssuedList();
                 scene = new Scene(root);
                 stage.setScene(scene);
                 stage.setTitle("Library");
