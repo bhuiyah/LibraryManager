@@ -6,18 +6,14 @@ import java.util.*;
 import java.time.LocalDate;
 //import gson
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoException;
 import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
-import com.sun.xml.internal.bind.v2.util.TypeCast;
 import org.bson.*;
-import org.bson.conversions.Bson;
 
 class Server extends Observable {
     static HashMap<String, Entry> books;
@@ -25,6 +21,7 @@ class Server extends Observable {
     static HashMap<String, Admin> admins;
     int clientCounter = 0;
     Set<Socket> sockets;
+    static Set<ClientHandler> observers;
     ObjectOutputStream out;
     static MongoDatabase database;
     static Type type;
@@ -37,6 +34,7 @@ class Server extends Observable {
         books = new HashMap<>();
         loginInfo = new HashMap<>();
         admins = new HashMap<>();
+        observers = new HashSet<>();
         new Server().runServer();
         type = new TypeToken<HashMap<String, LoginInfo>>(){}.getType();
     }
@@ -139,6 +137,7 @@ class Server extends Observable {
                 sockets.add(clientSocket);
                 ClientHandler handler = new ClientHandler(this, clientSocket);
                 this.addObserver(handler);
+                observers.add(handler);
                 out = new ObjectOutputStream(clientSocket.getOutputStream());
                 //send books to client
                 out.writeObject((books));
@@ -155,6 +154,48 @@ class Server extends Observable {
             clientHandler.sendToClient("ALREADY REGISTERED " + username);
             return;
         }
+        //check if the password is good enough
+        if (password.length() < 8) {
+            clientHandler.sendToClient("PASSWORD TOO SHORT+");
+            return;
+        }
+        //check if the password has a number
+        boolean hasNumber = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isDigit(password.charAt(i))) {
+                hasNumber = true;
+                break;
+            }
+        }
+        if (!hasNumber) {
+            clientHandler.sendToClient("PASSWORD MUST HAVE A NUMBER+");
+            return;
+        }
+        //check if the password has a special character
+        boolean hasSpecial = false;
+        for(int i = 0; i < password.length(); i++) {
+            if(!Character.isLetterOrDigit(password.charAt(i))) {
+                hasSpecial = true;
+                break;
+            }
+        }
+        if(!hasSpecial) {
+            clientHandler.sendToClient("PASSWORD MUST HAVE A SPECIAL CHARACTER+");
+            return;
+        }
+        //check if the password has an uppercase letter
+        boolean hasUpper = false;
+        for(int i = 0; i < password.length(); i++) {
+            if(Character.isUpperCase(password.charAt(i))) {
+                hasUpper = true;
+                break;
+            }
+        }
+        if(!hasUpper) {
+            clientHandler.sendToClient("PASSWORD MUST HAVE AN UPPERCASE LETTER+");
+            return;
+        }
+
         Gson gson = new Gson();
         String json = gson.toJson(info);
         //add to loginInfo array
@@ -170,8 +211,16 @@ class Server extends Observable {
         LoginInfo info = new LoginInfo(username, password, new ArrayList<>());
         //check if info is in database
         //look through the hashmap to see if the username is already in use
+        //check the observers to see if the user is already logged in
+        for (ClientHandler handler : observers) {
+            if (handler.getUsername().equals(username)) {
+                clientHandler.sendToClient("ALREADY LOGGED IN+ " + username);
+                return;
+            }
+        }
         if (loginInfo.containsKey(username)) {
             //check if the password is correct
+
             if (loginInfo.get(username).getPassword().equals(password)) {
                 //send the login info to the client
                 Gson gson = new Gson();
@@ -179,6 +228,7 @@ class Server extends Observable {
                 //add a code along with the json
                 clientHandler.sendToClient("LOGIN INFORMATION+" + json);
                 clientHandler.sendToClient("LOGGED IN: " + username);
+                clientHandler.setUsername(username);
                 return;
             }
         }
@@ -189,6 +239,7 @@ class Server extends Observable {
         clientCounter--;
         sockets.remove(clientHandler.getClientSocket());
         clientHandler.sendToClient("LOGOUT");
+        observers.remove(clientHandler);
         //remove the client from the observers
         this.deleteObserver(clientHandler);
         clientHandler.getClientSocket().close();

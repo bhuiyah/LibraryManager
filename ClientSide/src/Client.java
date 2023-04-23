@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 
 public class Client extends Application {
 
-    private static String host = "127.0.0.1";
+    private static String host = "20.172.64.102";
     private BufferedReader fromServer;
     private PrintWriter toServer;
     static Parent root;
@@ -81,7 +81,7 @@ public class Client extends Application {
                             accessCatalogue(books);
                         } else if (input.startsWith("INVALID LOGIN")) {
                             Platform.runLater(() -> {
-                                loginController.setRegisterError("Invalid username or password");
+                                loginController.setLoginError("Invalid username or password");
                             });
                         } else if (input.startsWith("LOGIN INFORMATION+")) {
                             //input will have a "LOGIN INFORMATION" followed by a space and then the login info in the form of a json string
@@ -100,9 +100,11 @@ public class Client extends Application {
                                 loginController.setRegisterError("Already Registered");
                             });
                         }
-//                        else if(input.startsWith("ALREADY LOGGED IN")){
-//                            loginController.setLoginError("Already Logged In");
-//                        }
+                        else if(input.startsWith("ALREADY LOGGED IN+")){
+                            Platform.runLater(() -> {
+                                loginController.setLoginError("Already Logged In");
+                            });
+                        }
                         else if (input.startsWith("LOGOUT")) {
                             try {
                                 //close the gui
@@ -260,6 +262,26 @@ public class Client extends Application {
                                     adminController.bookRemoved();
                                 });
                             }
+                        }
+                        else if(input.startsWith("PASSWORD TOO SHORT+")){
+                            Platform.runLater(() -> {
+                                loginController.setLoginError("Password must be at least 8 characters long");
+                            });
+                        }
+                        else if(input.startsWith("PASSWORD MUST HAVE A NUMBER+")){
+                            Platform.runLater(() -> {
+                                loginController.setLoginError("Password must have at least one number");
+                            });
+                        }
+                        else if(input.startsWith("PASSWORD MUST HAVE A SPECIAL CHARACTER+")){
+                            Platform.runLater(() -> {
+                                loginController.setLoginError("Password must have at least one special character");
+                            });
+                        }
+                        else if(input.startsWith("PASSWORD MUST HAVE AN UPPERCASE LETTER+")){
+                            Platform.runLater(() -> {
+                                loginController.setLoginError("Password must have at least one uppercase letter");
+                            });
                         }
                     }
                 } catch (Exception e) {

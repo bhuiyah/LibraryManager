@@ -20,8 +20,9 @@ class ClientHandler implements Runnable, Observer {
   private PrintWriter toClient;
   static Type type;
   private String typeOfClient = "NONE";
+  private String username = "NONE";
 
-  protected ClientHandler(Server server, Socket clientSocket) {
+    protected ClientHandler(Server server, Socket clientSocket) {
     System.out.println("connected");
     this.server = server;
     this.clientSocket = clientSocket;
@@ -196,4 +197,11 @@ class ClientHandler implements Runnable, Observer {
         this.typeOfClient = type;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+            return username;
+    }
 }

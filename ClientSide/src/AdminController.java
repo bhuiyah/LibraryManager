@@ -181,7 +181,7 @@ public class AdminController implements Initializable {
         ClearButton.setCursor(Cursor.HAND);
         RemoveButton.setCursor(Cursor.HAND);
         ShowPasswordButton.setCursor(Cursor.HAND);
-        
+
     }
 
     public void setClient(Client client) {
